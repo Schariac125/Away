@@ -2784,15 +2784,15 @@ int main(){
 >
 > ```cpp
 > bool isnum(string a) {
->     try {
->         size_t idx;
->         stod(a, &idx);
->         if (idx != a.size()) return false; // 有多余字符
->     } catch (...) {  // ← 这里就是 try 的作用
->         return false;
->     }
->     ...
->     return true;
+>  try {
+>      size_t idx;
+>      stod(a, &idx);
+>      if (idx != a.size()) return false; // 有多余字符
+>  } catch (...) {  // ← 这里就是 try 的作用
+>      return false;
+>  }
+>  ...
+>  return true;
 > }
 > ```
 >
@@ -3713,3 +3713,108 @@ int main(){
 简单来说就是按照题目要求模拟而已，我在外面加了一圈-1其实是为了防止数组越界。
 
 更优的做法是存储ans_key的时候就把坐标一起存储了，这样就算加强数据了也不会有问题。
+
+## 1069
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int m,n,s;
+int main(){
+    cin>>m>>n>>s;
+    vector<string> list_tran(m);
+    for (int i=0;i<m;i++){
+        cin>>list_tran[i];
+    }
+    set<string> award;
+    int cur=s;
+    if (m<cur){
+        cout<<"Keep going..."<<endl;
+    }else{
+        while (cur<=m){
+            if (award.find(list_tran[cur-1])==award.end()){
+                cout<<list_tran[cur-1]<<endl;
+                award.insert(list_tran[cur-1]);
+                cur+=n;
+            }else{，
+                cur++;
+            }
+        }
+    }
+    return 0;
+}
+```
+
+> 我第一遍这个代码挂了俩测试点，百思不得其解，后面改了半天才发现是我Keep going后面没写省略号，气笑了
+
+## 1070
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+int main(){
+    cin>>n;
+    vector<int> cord(n);
+    for (int i=0;i<n;i++){
+        cin>>cord[i];
+    }
+    sort(cord.begin(),cord.end());
+    int ans=cord[0];
+    int sum=1;
+    while (sum<n){
+        ans=(ans+cord[sum])/2;
+        sum++;
+    }
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+我已经很久没有写过这么简单的贪心了，这个贪心策略也太傻瓜了，每次选取最短的就行。
+
+## 1071
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int t,k;
+int main(){
+    cin>>t>>k;
+    while(k--){
+        if (t<=0){
+            cout<<"Game Over."<<endl;
+            break;
+        }
+        else{
+            int n1,b,t1,n2;
+            cin>>n1>>b>>t1>>n2;
+            if (t1>t){
+                cout<<"Not enough tokens.  Total = "<<t<<"."<<endl;
+            }else{
+                if (n1>n2&&b==0){
+                    t+=t1;
+                    printf("Win %d!  Total = %d.\n",t1,t);
+                }
+                else if (n1>n2&&b==1){
+                    t-=t1;
+                    printf("Lose %d.  Total = %d.\n",t1,t);
+                }
+                else if (n1<n2&&b==1){
+                    t+=t1;
+                    printf("Win %d!  Total = %d.\n",t1,t);
+                }
+                else if (n1<n2&&b==0){
+                    t-=t1;
+                    printf("Lose %d.  Total = %d.\n",t1,t);
+                }
+            }
+        }
+    }
+    return 0;
+}
+```
+
