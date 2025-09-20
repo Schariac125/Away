@@ -10,6 +10,6 @@
 
 所以希望这个仓库也能够帮到你，如果有错误可以向我反馈
 
-反馈邮箱地址：schariac125@gmail.com or 3321095604@qq.com 
+反馈邮箱地址：schariac125@gmail.com or 3321095604@qq.com （推荐使用QQ邮箱反馈）
 
 ​                                                                                                                                                                                                          ——Schariac125
