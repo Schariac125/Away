@@ -4,7 +4,7 @@
 
 这份答案是笔者在2025年备考期间自行整理的答案，绝大部分为笔者亲自书写代码， 部分可能会借鉴AI思路。
 
-不排除PAT官方后续修改测试数据而导致答案出现错误的情况，如有发现可向我反馈。
+不排除PAT官方后续修改测试数据而导致答案出现错误的情况，如有发现可向我反馈（反馈方式已经贴在了README文件中）
 
 编译语言为C++（g++），其他编译语言如C不保证能够通过。
 
@@ -2784,15 +2784,15 @@ int main(){
 >
 > ```cpp
 > bool isnum(string a) {
->  try {
->      size_t idx;
->      stod(a, &idx);
->      if (idx != a.size()) return false; // 有多余字符
->  } catch (...) {  // ← 这里就是 try 的作用
->      return false;
->  }
->  ...
->  return true;
+>     try {
+>         size_t idx;
+>         stod(a, &idx);
+>         if (idx != a.size()) return false; // 有多余字符
+>     } catch (...) {  // ← 这里就是 try 的作用
+>         return false;
+>     }
+>     ...
+>     return true;
 > }
 > ```
 >
@@ -3818,3 +3818,338 @@ int main(){
 }
 ```
 
+## 1072
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,m;
+string name;
+int main(){
+    cin>>n>>m;
+    set<int> ob;
+    for (int i=0;i<m;i++){
+        int y;
+        cin>>y;
+        ob.insert(y);
+    }
+    unordered_map<string,vector<int>> add;
+    vector<string> keyy;
+    for (int i=0;i<n;i++){
+        cin>>name;
+        keyy.push_back(name);
+        int x;
+        cin>>x;
+        for (int j=0;j<x;j++){
+            int t;
+            cin>>t;
+            add[name].push_back(t);
+        }
+    }
+    unordered_map<string,vector<int>> ans;
+    set<string> sum_stu;
+    vector<int> sum_ob;
+    for (int i=0;i<keyy.size();i++){
+        string it=keyy[i];
+        for (int j=0;j<add[it].size();j++){
+            if (ob.find(add[it][j])!=ob.end()){
+                sum_stu.insert(it);
+                sum_ob.push_back(add[it][j]);
+                ans[it].push_back(add[it][j]);
+            }
+        }
+        if (ans[it].size()!=0){
+            cout<<it<<": ";
+            for (int k=0;k<ans[it].size();k++){
+                if (k==ans[it].size()-1){
+                    printf("%04d",ans[it][k]);
+                }else{
+                    printf("%04d ",ans[it][k]);
+                }
+            }
+            cout<<endl;
+        }
+    }
+    cout<<sum_stu.size()<<" "<<sum_ob.size()<<endl;
+    return 0;
+}
+```
+
+这题很类似于2024年机考的那题鱼和熊掌，都是在查找物品的所属关系，这一题我的做法相当大胆，在unordered_map里内嵌了一个动态数组用于存储每个人的物品，同时把每个key存起来用于最后遍历。
+
+统计人数用了一个比较呆瓜的做法，就是把违规者和违禁品全部存入set和vector，然后输出他们的大小就行。
+
+## 1073
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, M;
+    if (!(cin >> N >> M)) return 0;
+
+    vector<int> fullScore(M);
+    vector<int> optCnt(M);
+    vector< vector<bool> > correct(M); // correct[q][i] for option i (0-based)
+    for (int i = 0; i < M; ++i) {
+        int score, opts, correctNum;
+        cin >> score >> opts >> correctNum;
+        fullScore[i] = score;
+        optCnt[i] = opts;
+        correct[i].assign(opts, false);
+        for (int j = 0; j < correctNum; ++j) {
+            char c; cin >> c;
+            correct[i][c - 'a'] = true;
+        }
+    }
+
+    // wrongCount[q][opt]
+    vector< vector<int> > wrongCount(M);
+    for (int i = 0; i < M; ++i) wrongCount[i].assign(optCnt[i], 0);
+
+    vector<double> scores(N, 0.0);
+
+    string line;
+    getline(cin, line); // consume endline after reading question data
+
+    for (int stu = 0; stu < N; ++stu) {
+        getline(cin, line);
+        // parse line like: (2 a b) (1 c) ...
+        int pos = 0;
+        int qIndex = 0;
+        while (pos < (int)line.size() && qIndex < M) {
+            // find '('
+            while (pos < (int)line.size() && line[pos] != '(') ++pos;
+            if (pos >= (int)line.size()) break;
+            ++pos; // skip '('
+            // read number k
+            while (pos < (int)line.size() && isspace(line[pos])) ++pos;
+            int k = 0;
+            while (pos < (int)line.size() && isdigit(line[pos])) {
+                k = k * 10 + (line[pos] - '0');
+                ++pos;
+            }
+            // read k options (letters)
+            vector<bool> sel(optCnt[qIndex], false);
+            for (int t = 0; t < k; ++t) {
+                // skip spaces
+                while (pos < (int)line.size() && isspace(line[pos])) ++pos;
+                if (pos < (int)line.size() && isalpha(line[pos])) {
+                    char c = line[pos];
+                    sel[c - 'a'] = true;
+                    ++pos;
+                }
+            }
+            // move to ')' (skip until ')')
+            while (pos < (int)line.size() && line[pos] != ')') ++pos;
+            if (pos < (int)line.size() && line[pos] == ')') ++pos;
+
+            // update wrongCount for this question:
+            // any option where sel differs from correct => wrongCount++
+            for (int opt = 0; opt < optCnt[qIndex]; ++opt) {
+                if ( (opt < (int)correct[qIndex].size() && sel[opt] != correct[qIndex][opt]) ) {
+                    wrongCount[qIndex][opt]++;
+                }
+            }
+
+            // compute score for this question
+            bool anyWrongSelected = false;
+            for (int opt = 0; opt < optCnt[qIndex]; ++opt) {
+                if (sel[opt] && (opt >= (int)correct[qIndex].size() || !correct[qIndex][opt]) ) {
+                    anyWrongSelected = true;
+                    break;
+                }
+            }
+            if (anyWrongSelected) {
+                // 0 point
+            } else {
+                // no wrong selected. Check if selected set equals correct set
+                bool equal = true;
+                for (int opt = 0; opt < optCnt[qIndex]; ++opt) {
+                    bool corr = correct[qIndex][opt];
+                    bool s = sel[opt];
+                    if (corr != s) { equal = false; break; }
+                }
+                if (equal) {
+                    scores[stu] += fullScore[qIndex];
+                } else {
+                    scores[stu] += fullScore[qIndex] / 2.0;
+                }
+            }
+
+            ++qIndex;
+        }
+    }
+
+    // 输出每个学生分数，保留一位小数
+    cout.setf(ios::fixed);
+    cout << setprecision(1);
+    for (int i = 0; i < N; ++i) {
+        cout << scores[i] << "\n";
+    }
+
+    // 寻找最大错误次数
+    int maxErr = 0;
+    for (int q = 0; q < M; ++q) {
+        for (int opt = 0; opt < optCnt[q]; ++opt) {
+            maxErr = max(maxErr, wrongCount[q][opt]);
+        }
+    }
+
+    if (maxErr == 0) {
+        cout << "Too simple\n";
+    } else {
+        // 按题号(从1开始)递增，选项字母递增输出所有等于 maxErr 的项
+        for (int q = 0; q < M; ++q) {
+            for (int opt = 0; opt < optCnt[q]; ++opt) {
+                if (wrongCount[q][opt] == maxErr) {
+                    cout << maxErr << " " << (q+1) << "-" << char('a' + opt) << "\n";
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+```
+
+写不动了，思路不难，但自己看看代码量吧。
+
+其中要用到的不仅有STL容器，你还要知道字符串分割的方法，我是真写不下去了。
+
+## 1074
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+string n;
+string a,b;
+
+int main(){
+    cin>>n>>a>>b;
+    while (a.size()<b.size()){
+        a="0"+a;
+    }
+    while (b.size()<a.size()){
+        b="0"+b;
+    }
+    int num=a.size();
+    string ans1;
+    int t=0;
+    char c;
+    for (int i=num-1;i>=0;i--){
+        int x=a[i]-'0';
+        int y=b[i]-'0';
+        int u=n[i]-'0';
+        if (u==0){
+            u=10;
+        }
+        int s=(x+y+t)%u;
+        c='0'+s;
+        ans1=c+ans1;
+        t=(x+y+t)/u;
+    }
+    if (t>0){
+        ans1=char('0'+t)+ans1;
+    }
+    bool flag=0;
+    string ans;
+    for (int i=0;i<ans1.size();i++){
+        if (flag){
+            ans+=ans1[i];
+        }else if(!flag&&ans1[i]!='0'){
+            ans+=ans1[i];
+            flag=1;
+        }
+    }
+    if (ans.empty()){
+        cout<<0<<endl;
+        return 0;
+    }
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+首先这个题实际上很简单，就是普通的模拟加法，无非只是加了一个进制处理的问题，但没什么差别，如果你会高精度加法那你肯定这个也会了。
+
+去除前导0，这个也应该都懂，就是要注意的是，如果ans是空串要输出0。
+
+> 我写代码要写出幻觉了——2025.9.20
+
+## 1075
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class node{
+    public:
+    int add,data,next;
+};
+
+int tbegin,n,k;
+int main(){
+    cin>>tbegin>>n>>k;
+    vector<node> list_node;
+    unordered_map<int,node> m;
+    node l;
+    for (int i=0;i<n;i++){
+        cin>>l.add>>l.data>>l.next;
+        m[l.add]=l;
+    }
+    while (tbegin!=-1){
+        list_node.push_back(m[tbegin]);
+        tbegin=m[tbegin].next;
+    }
+    vector<node> under_zero,upper_k,mid,ans;
+    for (int i=0;i<list_node.size();i++){//这里注意i小于什么，测试点里面有无用节点
+        if (list_node[i].data<0){
+            under_zero.push_back(list_node[i]);
+        }else if(list_node[i].data>k){
+            upper_k.push_back(list_node[i]);
+        }else{
+            mid.push_back(list_node[i]);
+        }
+    }
+    for (int i=0;i<under_zero.size();i++){
+        ans.push_back(under_zero[i]);
+    }
+    for (int i=0;i<mid.size();i++){
+        ans.push_back(mid[i]);
+    }
+    for (int i=0;i<upper_k.size();i++){
+        ans.push_back(upper_k[i]);
+    }
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1){
+            ans[i].next=-1;
+        }else{
+            ans[i].next=ans[i+1].add;
+        }
+    }
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1){
+            printf("%05d %d -1",ans[i].add,ans[i].data);
+        }else{
+            printf("%05d %d %05d\n",ans[i].add,ans[i].data,ans[i].next);
+        }
+    }
+    return 0;
+}
+```
+
+和前面几题处理链表的方式一模一样，只不过这个地方要记得分三次存链表元素
+
+都写到这里了应该不可能不知道链表是什么了吧。
+
+> 这个题面真的是懒得喷啊。
+>
+> 我第一遍以为[0,K]是指的数组中链表元素下标，然后大脑都快给我整宕机了都没想出来这到底是个什么排序方法。
+>
+> 后来才想到这个该不会指的是链表元素的值吧……
