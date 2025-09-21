@@ -6,7 +6,7 @@
 
 不排除PAT官方后续修改测试数据而导致答案出现错误的情况，如有发现可向我反馈（反馈方式已经贴在了README文件中）
 
-编译语言为C++（g++），其他编译语言如C不保证能够通过。
+编译语言为C++（g++），其他编译语言如C不保证能够通过（绝对不保证能通过）。
 
 因笔者水平有限，答案并不一定为时间空间复杂度最优解（其实是大部分不是），只保证可AC，oi大佬轻喷OTZ
 
@@ -4381,6 +4381,310 @@ int main(){
 ## 1079
 
 ```cpp
+#include <bits/stdc++.h>
+using namespace std;
 
+string addition(string a,string b){
+    while(a.size()<b.size()){
+        a='0'+a;
+    }
+    while(b.size()<a.size()){
+        b='0'+b;
+    }
+    int n=a.size();
+    string ans1,ans;
+    int t=0;
+    for (int i=n-1;i>=0;i--){
+        int x=a[i]-'0';
+        int y=b[i]-'0';
+        char c=(x+y+t)%10+'0';
+        t=(x+y+t)/10;
+        ans1=c+ans1;
+    }
+    if (t!=0){
+        ans1=char('0'+t)+ans1;
+    }
+    bool flag=0;
+    for (int i=0;i<ans1.size();i++){
+        if (flag){
+            ans+=ans1[i];
+        }else if(!flag&&ans1[i]!='0'){
+            ans+=ans1[i];
+            flag=1;
+        }
+    }
+    return ans;
+}
+bool isback_num(string a){
+    string b;
+    int n=a.size();
+    for (int i=n-1;i>=0;i--){
+        b+=a[i];
+    }
+    if (a==b){
+        return true;
+    }else{
+        return false;
+    }
+}
+string back_num(string a){
+    string b,ans;
+    int n=a.size();
+    for (int i=n-1;i>=0;i--){
+        b+=a[i];
+    }
+    return b;
+}
+int main(){
+    string x;
+    cin>>x;
+    int sum=0;
+    if (isback_num(x)){
+        cout<<x<<" is a palindromic number."<<endl;
+        return 0;
+    }
+    while (1){
+        if (sum>=10){
+            cout<<"Not found in 10 iterations."<<endl;
+            break;
+        }
+        string a=back_num(x);
+        string b=addition(x,a);
+        if (isback_num(b)){
+            cout<<x<<" + "<<a<<" = "<<b<<endl;
+            cout<<b<<" is a palindromic number."<<endl;
+            break;
+        }else{
+            cout<<x<<" + "<<a<<" = "<<b<<endl;
+            x=b;
+            sum++;
+        }
+    }
+    return 0;
+}
 ```
 
+我气笑了。
+
+这一题涉及的模板有，高精度计算，回文数判断，回文数输出，最鬼的其实是高精，但其实也还好。
+
+你看我前面打板子打了54行。
+
+还有这一题不用去除前导零，我第一次严格去了前导0，然后给我挂了几个测试点，后面一看样例，不用去。
+
+那还说什么，算我小丑呗。这题就是典型的磨磨性子你总能写出来的类型。
+
+记得提前判定一下你输入的数是不是一开始就是回文数。
+
+题外话，有没有人试试看不打高精会不会爆
+
+## 1080
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int p,m,n;
+set<string> all_stu;
+class okstu{
+    public:
+    string na;
+    int pt,midt,fint,st;
+};
+bool cmp(okstu a,okstu b){
+    if (a.st!=b.st){
+        return a.st>b.st;
+    }else{
+        return a.na<b.na;
+    }
+}
+int main(){
+    cin>>p>>m>>n;
+    string name;
+    int score;
+    unordered_map<string,int> stu_p;
+    set<string> key_p;
+    for (int i=0;i<p;i++){
+        cin>>name>>score;
+        stu_p[name]=score;
+        key_p.insert(name);
+        all_stu.insert(name);
+        
+    }
+    unordered_map<string,int> stu_mid;
+    set<string> key_mid;
+    for (int i=0;i<m;i++){
+        cin>>name>>score;
+        stu_mid[name]=score;
+        key_mid.insert(name);
+        all_stu.insert(name);
+    }
+    unordered_map<string,int> stu_fin;
+    set<string> key_fin;
+    for (int i=0;i<n;i++){
+        cin>>name>>score;
+        stu_fin[name]=score;
+        key_fin.insert(name);
+        all_stu.insert(name);
+    }
+    vector<okstu> ok_stu;
+    for (auto it:all_stu){
+        if (key_p.find(it)!=key_p.end()&&stu_p[it]>=200){
+            int sum=0;
+            if (key_mid.find(it)!=key_mid.end()){
+                if (key_fin.find(it)!=key_fin.end()){
+                    if (stu_mid[it]>stu_fin[it]){
+                        sum=(int)(stu_mid[it]*0.4+stu_fin[it]*0.6+0.5);
+                        if (sum>=60){
+                            ok_stu.push_back((okstu){it,stu_p[it],stu_mid[it],stu_fin[it],sum});
+                        }
+                    }else{
+                        sum=(int)(stu_fin[it]+0.5);
+                        if (sum>=60){
+                            ok_stu.push_back((okstu){it,stu_p[it],stu_mid[it],stu_fin[it],sum});
+                        }
+                    }
+                }else{
+                    sum=(int)(stu_mid[it]*0.4+0.5);
+                    if (sum>=60){
+                        ok_stu.push_back((okstu){it,stu_p[it],stu_mid[it],-1,sum});
+                    }
+                }
+            }else{
+                sum=(int)(stu_fin[it]+0.5);
+                if (sum>=60){
+                    ok_stu.push_back((okstu){it,stu_p[it],-1,stu_fin[it],sum});
+                }
+            }
+        }
+    }
+    sort(ok_stu.begin(),ok_stu.end(),cmp);
+    for (int i=0;i<ok_stu.size();i++){
+        cout<<ok_stu[i].na<<" "<<ok_stu[i].pt<<" "<<ok_stu[i].midt<<" "<<ok_stu[i].fint<<" "<<ok_stu[i].st<<endl;
+    }
+    return 0;
+}
+```
+
+一题更比十题强。
+
+首先我们读入数据的时候需要在一个大集合中存入每一个学生的数据，只要这个学生参加过一次学习活动你就要记录这个学生的名字。
+
+在每次读入编程成绩，期中成绩，期末成绩，就要各开一个容器来记录每个参加的学生，后面有大用。
+
+核心部分，我们去遍历全学生集合中的人数，然后按照题目的描述写一大堆选择语句就可以了，记得四舍五入的问题，上面有四舍五入的板子。
+
+最后就排序，写一个自定义排序函数就好了
+
+> 这东西给我的感觉不像在写算法，更像在写项目。
+
+## 1081
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+string password;
+int main(){
+    cin>>n;
+    cin.ignore();
+    while (n--){
+        getline(cin,password);
+        if (password.size()<6){
+            cout<<"Your password is tai duan le."<<endl;
+            continue;
+        }
+        bool flag_num=0,flag_letter=0,flag_cant=0;
+        for (char c:password){
+            if (isdigit(c)){
+                flag_num=1;
+            }
+            if (isalpha(c)){
+                flag_letter=1;
+            }
+            if (!isdigit(c)&&!isalpha(c)&&c!='.'){
+                flag_cant=1;
+            }
+        }
+        if (flag_cant){
+            cout<<"Your password is tai luan le."<<endl;
+            continue;
+        }else if(flag_num&&!flag_letter){
+            cout<<"Your password needs zi mu."<<endl;
+            continue;
+        }else if(!flag_num&&flag_letter){
+            cout<<"Your password needs shu zi."<<endl;
+            continue;
+        }else{
+            cout<<"Your password is wan mei."<<endl;
+            continue;
+        }
+    }
+    return 0;
+}
+```
+
+## 1082
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+double dis(int x,int y){
+    return sqrt(x*x+y*y);
+}
+class player{
+    public:
+    string id;
+    int x,y;
+};
+bool cmp(player a,player b){
+    return dis(a.x,a.y)<dis(b.x,b.y);
+}
+int main(){
+    int n;
+    cin>>n;
+    vector<player> add(n);
+    for (int i=0;i<n;i++){
+        cin>>add[i].id>>add[i].x>>add[i].y;
+    }
+    sort(add.begin(),add.end(),cmp);
+    cout<<add[0].id<<" "<<add[n-1].id<<endl;
+    return 0;
+}
+```
+
+## 1083
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+int main(){
+    cin>>n;
+    vector<int> poker(n);
+    for (int i=0;i<n;i++){
+        cin>>poker[i];
+    }
+    set<int> nums;
+    unordered_map<int,int> m;
+    for (int i=0;i<n;i++){
+        int dis;
+        dis=abs((i+1)-poker[i]);
+        nums.insert(dis);
+        m[dis]++;
+    }
+    vector<int> ans;
+    for (auto it:nums){
+        if(m[it]>1) ans.push_back(it);
+    }
+    for (int i=ans.size()-1;i>=0;i--){
+        cout<<ans[i]<<" "<<m[ans[i]]<<endl;
+    }
+    return 0;
+}
+```
+
+太简单，不讲。
