@@ -4153,3 +4153,234 @@ int main(){
 > 我第一遍以为[0,K]是指的数组中链表元素下标，然后大脑都快给我整宕机了都没想出来这到底是个什么排序方法。
 >
 > 后来才想到这个该不会指的是链表元素的值吧……
+
+## 1076
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+string ans,a;
+int main(){
+    cin>>n;
+    for (int i=0;i<n;i++){
+        for (int j=0;j<4;j++){
+            cin>>a;
+            if (a[2]=='T'){
+                ans+='0'+(a[0]-'A'+1);
+            }
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+简单字符串模拟
+
+## 1077
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,m;
+int main(){
+    cin>>n>>m;
+    for (int i=0;i<n;i++){
+        int tch_score;
+        cin>>tch_score;
+        vector<int> stu_score;
+        for (int j=0;j<n-1;j++){
+            int score;
+            cin>>score;
+            if (score<=m&&score>=0){
+                stu_score.push_back(score);
+            }
+        }
+        sort(stu_score.begin(),stu_score.end());
+        double ans=0,sum=0;
+        for (int k=1;k<=stu_score.size()-2;k++){
+            sum+=stu_score[k];
+        }
+        ans=((sum/(stu_score.size()-2))+tch_score)/2;
+        cout<<(int)(ans+0.5)<<endl;//注意这个四舍五入
+    }
+    return 0;
+}
+```
+
+如果你使用的是VScode作为IDE，那么你大概率会遇到在24行写printf时在本地运行和在PAT测评机运行不同的情况。
+
+这个东西就涉及到了一些比较底层的东西，现在暂时不用了解，只需要知道以后四舍五入都按照24行那么写就行了
+
+另外，笔者本人的IDE是VScode，不知道Dev C++是不是也会产生这种情况，如果不会可以向我反馈一下。
+
+## 1078
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+char fun;
+string a,ans;
+int main(){
+    cin>>fun;
+    cin.ignore();
+    getline(cin,a);
+    if(fun=='C'){
+        queue<char> q;
+        string n;
+        for(char c:a){
+            if(q.empty()){
+                q.push(c);
+            }else if(c==q.front()){
+                q.push(c);
+            }else{
+                if(q.size()==1){
+                    ans+=q.front();
+                    q.pop();
+                }else{
+                    n=to_string(q.size());
+                    ans+=n;
+                    ans+=q.front();
+                    while(!q.empty()){
+                        q.pop();
+                    }
+                }
+                q.push(c);
+            }
+        }
+        if(!q.empty()){
+            if(q.size()==1){
+                ans+=q.front();
+                q.pop();
+            }else{
+                n=to_string(q.size());
+                ans+=n;
+                ans+=q.front();
+                while(!q.empty()){
+                    q.pop();
+                }
+            }
+        }
+        cout<<ans<<endl;
+        return 0;
+    }
+    if(fun=='D'){
+        int i=0;
+        while(i<a.size()){
+            if(isdigit(a[i])){
+                string num;
+                while(i<a.size()&&isdigit(a[i])){
+                    num+=a[i];
+                    i++;
+                }
+                if(i<a.size()){
+                    char c=a[i];
+                    int count=stoi(num);
+                    for(int j=0;j<count;j++){
+                        ans+=c;
+                    }
+                    i++;
+                }
+            }else{
+                ans+=a[i];
+                i++;
+            }
+        }
+        cout<<ans<<endl;
+        return 0;
+    }
+}
+```
+
+超级字符串大模拟，极致的磨性子，极致的享受。
+
+思路很简单，压缩部分用队列存储相同元素，遇到不同的就立刻输出并且清空队列，而解压部分要读入数字然后再读入目标字符
+
+我附带一个23年机考敲笨钟的答案，我趁热打铁写的。
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+string a;
+vector<string> word1,word2;
+bool yes(string a){
+    int b=a.size();
+    if (a[b-1]=='g'&&a[b-2]=='n'&&a[b-3]=='o'){
+        return true;
+    }else{
+        return false;
+    }
+}
+int main(){
+    cin>>n;
+    cin.ignore();
+    for (int i=0;i<n;i++){
+        getline(cin,a);
+        string fir,sec;
+        int m=0;
+        for (int j=0;j<a.size();j++){
+            if (a[j]==','){
+                m=j;
+                break;
+            }else{
+                fir+=a[j];
+            }
+        }
+        for (int j=m+2;j<a.size();j++){
+            if (a[j]=='.'){
+                break;
+            }else{
+                sec+=a[j];
+            }
+        }
+        stringstream ss(fir);
+        string s;
+        while (ss>>s){
+            word1.push_back(s);
+        }
+        stringstream sss(sec);
+        while (sss>>s){
+            word2.push_back(s);
+        }
+        string r1=word1[word1.size()-1];
+        string r2=word2[word2.size()-1];
+        if (yes(r1)&&yes(r2)){
+            word2[word2.size()-1]="zhong";
+            word2[word2.size()-2]="ben";
+            word2[word2.size()-3]="qiao";
+            for (int i=0;i<word1.size();i++){
+                if (i==word1.size()-1){
+                    cout<<word1[i]<<", ";
+                }else{
+                    cout<<word1[i]<<" ";
+                }
+            }
+            for (int i=0;i<word2.size();i++){
+                if (i==word2.size()-1){
+                    cout<<word2[i]<<"."<<endl;
+                }else{
+                    cout<<word2[i]<<" ";
+                }
+            }
+        }else{
+            cout<<"Skipped"<<endl;
+        }
+        word1.clear();
+        word2.clear();
+    }
+    return 0;
+}
+```
+
+## 1079
+
+```cpp
+
+```
+
