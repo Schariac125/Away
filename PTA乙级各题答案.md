@@ -4688,3 +4688,307 @@ int main(){
 ```
 
 太简单，不讲。
+
+## 1084
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    char d;
+    int n;
+    string ans;
+    cin>>d>>n;
+    ans+=d;
+    if (n==1){
+        cout<<ans<<endl;
+        return 0;
+    }else{
+        for (int i=1;i<n;i++){
+            string next;
+            int pos=0;
+            while(pos<ans.size()){
+                char c=ans[pos];
+                int m=1;
+                while (pos+1<ans.size()&&ans[pos+1]==c){
+                    m++;
+                    pos++;
+                }
+                next+=c;
+                next+=to_string(m);
+                pos++;
+            }
+            ans=next;
+        }
+        cout<<ans<<endl;
+    }
+    return 0;
+}
+```
+
+题目没讲清楚。
+
+这个题面可能会让人误以为是统计原本字符串中所有的数字，实际上是要统计连续的数字。
+
+## 1085
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+class school{
+    public:
+    string name;
+    int s;
+    int man;
+    int p;
+};
+bool cmp(school a,school b){
+    if (a.s==b.s){
+        if (a.man==b.man){
+            return a.name<b.name;
+        }else{
+            return a.man<b.man;
+        }
+    }else{
+        return a.s>b.s;
+    }
+}
+int n;
+double score;
+string test,where;
+int main(){
+    cin>>n;
+    unordered_map<string,double> sum;
+    unordered_map<string,int> m1;
+    set<string> keyy;
+    for (int i=0;i<n;i++){
+        cin>>test>>score>>where;
+        for (char &c:where){
+            c=tolower(c);
+        }
+        m1[where]++;
+        if (keyy.find(where)==keyy.end()){
+            sum[where]=0;
+        }
+        keyy.insert(where);
+        char m=test[0];
+        if(m=='A'){
+            sum[where]+=score;
+        }else if(m=='B'){
+            score/=1.5;
+            //score=(int)(score+0.5);
+            sum[where]+=score;
+        }else if(m=='T'){
+            score*=1.5;
+            //score=(int)(score+0.5);
+            sum[where]+=score;
+        }
+    }
+    vector<school> ans;
+    for (auto it:keyy){
+        school r;
+        r.man=m1[it];
+        r.s=(int)sum[it];
+        r.name=it;
+        ans.push_back(r);
+    }
+    sort(ans.begin(),ans.end(),cmp);
+    ans[0].p=1;
+    int cur=2;
+    for (int i=1;i<ans.size();i++){
+        if (ans[i].s==ans[i-1].s){
+            ans[i].p=ans[i-1].p;
+            cur++;
+        }else{
+            ans[i].p=cur;
+            cur++;
+        }
+    }
+    cout<<ans.size()<<endl;
+    if (ans.size()==0){
+        cout<<0<<endl;
+        return 0;
+    }
+    for (int i=0;i<ans.size();i++){
+        cout<<ans[i].p<<" "<<ans[i].name<<" ";
+        printf("%d ",ans[i].s);
+        cout<<ans[i].man<<endl;
+    }
+    return 0;
+}
+```
+
+小心浮点误差。
+
+这就是一个很纯粹的大模拟，难度尚且在B1080之下
+
+我一个浮点误差处理了半节课之久。
+
+## 1086
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int back_num(int x){
+    int res=0;
+    while (x>0){
+        int t=x%10;
+        res=res*10+t;
+        x/=10;
+    }
+    return res;
+}
+int main(){
+    int a,b;
+    cin>>a>>b;
+    int ans=back_num(a*b);
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+## 1087
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+set<int> num;
+int n;
+int main(){
+    cin>>n;
+    for (int i=1;i<=n;i++){
+        double a=i/2.0;
+        double b=i/3.0;
+        double c=i/5.0;
+        int sum=(int)a+(int)b+(int)c;
+        num.insert(sum);
+    }
+    cout<<num.size()<<endl;
+    return 0;
+}
+```
+
+## 1088
+
+```cpp
+#include <iostream>
+#include <cmath>
+#include <vector>
+using namespace std;
+
+int reverse_num(int n) {
+    return (n % 10) * 10 + (n / 10);
+}
+
+int main() {
+    int m, x, y;
+    cin >> m >> x >> y;
+    
+    int best_a = 0;
+    double best_b = 0, best_c = 0;
+    
+    for (int a = 10; a < 100; a++) {
+        int b = reverse_num(a);
+        double diff = abs(a - b) * 1.0;
+        
+        // 关键修改：使用浮点数计算和比较
+        if (fabs(diff / x - b * 1.0 / y) < 1e-5) {
+            double c = diff / x;
+            if (a > best_a) {
+                best_a = a;
+                best_b = b;
+                best_c = c;
+            }
+        }
+    }
+    
+    if (best_a == 0) {
+        cout << "No Solution" << endl;
+        return 0;
+    }
+    
+    cout << best_a << " ";
+    
+    // 输出比较结果
+    vector<double> values = {best_a * 1.0, best_b, best_c};
+    for (int i = 0; i < 3; i++) {
+        if (fabs(m - values[i]) < 1e-5) {
+            cout << "Ping";
+        } else if (m > values[i]) {
+            cout << "Gai";
+        } else {
+            cout << "Cong";
+        }
+        
+        if (i < 2) cout << " ";
+    }
+    
+    return 0;
+}
+```
+
+你牛大了，4测试点塞了一个什么数据你心里有数
+
+简单来说，a是整数，b是整数，但谁告诉你c也一定要是整数了？
+
+如果是这个地方我只能说两分送你了，我改不出来了。
+
+> 这一题是个什么情况，我问遍了三四个ai都没有找出来错误点，可见这个恶意有多么明显。
+
+## 1089
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    vector<int> statements(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> statements[i];
+    }
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = i + 1; j <= n; j++) {
+            // 假设i和j是狼人
+            vector<int> identity(n + 1, 1); // 1表示平民，-1表示狼人
+            identity[i] = -1;
+            identity[j] = -1;
+            
+            vector<int> liars; // 存储说谎者的索引
+            for (int k = 1; k <= n; k++) {
+                int said = statements[k];
+                int target = abs(said);
+                // 判断说话内容与实际情况是否一致
+                if ((said > 0 && identity[target] == -1) || (said < 0 && identity[target] == 1)) {
+                    liars.push_back(k);
+                }
+            }
+            
+            // 检查条件：恰好有两个说谎者，且一个狼人一个平民
+            if (liars.size() == 2) {
+                int wolf_count = 0, human_count = 0;
+                for (int liar : liars) {
+                    if (identity[liar] == -1) wolf_count++;
+                    else human_count++;
+                }
+                if (wolf_count == 1 && human_count == 1) {
+                    cout << i << " " << j << endl;
+                    return 0;
+                }
+            }
+        }
+    }
+    
+    cout << "No Solution" << endl;
+    return 0;
+}
+```
+
+遍历元素然后查找，目前想不出更优的解法。
