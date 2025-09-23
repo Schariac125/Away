@@ -4992,3 +4992,152 @@ int main() {
 ```
 
 遍历元素然后查找，目前想不出更优的解法。
+
+## 1090
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,m;
+int main(){
+    cin>>n>>m;
+    unordered_map<int,set<int>> listing;
+    set<int> keyy;
+    int x,y;
+    for (int i=0;i<n;i++){
+        cin>>x>>y;
+        listing[x].insert(y);
+        listing[y].insert(x);
+        keyy.insert(x);
+        keyy.insert(y);
+    }
+    for (int i=0;i<m;i++){
+        int k;
+        cin>>k;
+        set<int> g;
+        for (int j=0;j<k;j++){
+            int z;
+            cin>>z;
+            g.insert(z);
+        }
+        int flag=0;
+        for (auto it:g){
+            if (keyy.find(it)!=keyy.end()){
+                for (auto a:listing[it]){
+                    if (g.find(a)!=g.end()){
+                        flag=1;
+                    }
+                }
+            }
+        }
+        if (flag==0){
+            cout<<"Yes"<<endl;
+        }else{
+            cout<<"No"<<endl;
+        }
+    }
+    return 0;
+}
+```
+
+## 1091
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int m;
+int num_size(int a){
+    int sum=0;
+    while (a>0){
+        sum++;
+        a/=10;
+    }
+    return sum;
+}
+int self_num(int a,int b,int c){
+    int d=a*c;
+    int sum=1;
+    while (b--){
+        sum*=10;
+    }
+    int res=d%sum;
+    return res;
+}
+int main(){
+    cin>>m;
+    int x;
+    while (m--){
+        cin>>x;
+        int y=x*x;
+        int flag=0;
+        for (int i=1;i<10;i++){
+            //cout<<num_size(x)<<" "<<self_num(y,num_size(x),i)<<endl;
+            if (self_num(y,num_size(x),i)==x){
+                cout<<i<<" "<<y*i<<endl;
+                flag=1;
+                break;
+            }
+        }
+        if (flag==0){
+            cout<<"No"<<endl;
+        }
+    }
+    return 0;
+}
+```
+
+## 1093
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,m;
+class cookie{
+    public:
+    int num;
+    int sell;
+};
+bool cmp(cookie a,cookie b){
+    return a.sell>b.sell;
+} 
+int main(){
+    cin>>n>>m;
+    vector<cookie> a(n);
+    for (int i=0;i<n;i++){
+        a[i].num=i+1;
+    }
+    while (m--){
+        vector<int> b(n);
+        for (int i=0;i<n;i++){
+            cin>>b[i];
+            a[i].sell+=b[i];
+        }
+    }
+    sort(a.begin(),a.end(),cmp);
+    vector<int> ans;
+    int maxx=a[0].sell;
+    ans.push_back(a[0].num);
+    for (int i=1;i<n;i++){
+        if (a[i].sell==maxx){
+            ans.push_back(a[i].num);
+        }else if(a[i].sell<maxx){
+            break;
+        }
+    }
+    cout<<a[0].sell<<endl;
+    if (ans.size()==1){
+        cout<<ans[0]<<endl;
+        return 0;
+    }
+    sort(ans.begin(),ans.end());
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1) cout<<ans[i];
+        else cout<<ans[i]<<" ";
+    }
+    return 0;
+}
+```
+
