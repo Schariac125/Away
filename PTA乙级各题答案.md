@@ -5088,7 +5088,7 @@ int main(){
 }
 ```
 
-## 1093
+## 1092
 
 ```cpp
 #include <bits/stdc++.h>
@@ -5138,6 +5138,445 @@ int main(){
         else cout<<ans[i]<<" ";
     }
     return 0;
+}
+```
+
+## 1093
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string a,b;
+set<char> s;
+int main(){
+    getline(cin,a);
+    //cin.ignore();
+    getline(cin,b);
+    string n=a+b;
+    string ans;
+    for (char c:n){
+        if (s.find(c)==s.end()){
+            ans+=c;
+            s.insert(c);
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+set的模板题
+
+## 1094
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+bool isprime(int a){
+    if (a==1||a==0) return false;
+    if (a==2) return true;
+    for (int i=2;i*i<=a;i++){
+        if (a%i==0){
+            return false;
+        }
+    }
+    return true;
+}
+int turn_num(string a){
+    int res=0;
+    for (int i=0;i<a.size();i++){
+        int tem=a[i]-'0';
+        res=res*10+tem;
+    }
+    return res;
+}
+int n,k;
+signed main(){
+    cin>>n>>k;
+    string num,s;
+    cin>>num;
+    for (int i=0;i<=n-k;i++){
+        s=num.substr(i,k);
+        int x=turn_num(s);
+        if (isprime(x)){
+            cout<<s<<endl;
+            return 0;
+        }
+    }
+    cout<<"404"<<endl;
+    return 0;
+}
+```
+
+很模板的一道题，没什么好说的，记住在判断素数的那一串里面要判断一下为0的情况。
+
+## 1095
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n, m;
+
+class stu {
+public:
+    char type;
+    string num;
+    string date;
+    string id;
+    int score;
+    string test;
+};
+
+class stage {
+public:
+    string nums;
+    int man;
+    
+    stage(string n, int m) : nums(n), man(m) {}
+    
+    bool operator<(const stage& other) const {
+        if (man == other.man) {
+            return nums < other.nums;
+        }
+        return man > other.man;
+    }
+};
+
+bool cmp(const stu& a, const stu& b) {
+    if (a.score == b.score) {
+        return a.test < b.test;
+    }
+    return a.score > b.score;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    
+    cin >> n >> m;
+    vector<stu> add(n);
+    string s;
+    int x;
+    
+    // 预处理：按日期组织数据
+    unordered_map<string, vector<stu>> dateMap;
+    
+    for (int i = 0; i < n; i++) {
+        cin >> s >> x;
+        add[i].test = s;
+        add[i].type = s[0];
+        add[i].num = s.substr(1, 3);
+        add[i].date = s.substr(4, 6);
+        add[i].id = s.substr(10);
+        add[i].score = x;
+        
+        // 添加到日期映射中
+        dateMap[add[i].date].push_back(add[i]);
+    }
+    
+    // 预处理：按考场组织数据
+    unordered_map<string, pair<int, int>> siteMap; // site -> (count, total)
+    for (const auto& student : add) {
+        siteMap[student.num].first++;
+        siteMap[student.num].second += student.score;
+    }
+    
+    // 预处理：按类型组织数据
+    unordered_map<char, vector<stu>> typeMap;
+    for (const auto& student : add) {
+        typeMap[student.type].push_back(student);
+    }
+    
+    // 对预处理的数据进行排序
+    for (auto& pair : typeMap) {
+        sort(pair.second.begin(), pair.second.end(), cmp);
+    }
+    
+    for (int i = 0; i < m; i++) {
+        int a;
+        cin >> a;
+        cout << "Case " << i + 1 << ": " << a << " ";
+        
+        if (a == 1) {
+            char c;
+            cin >> c;
+            cout << c << "\n";
+            
+            if (typeMap.find(c) == typeMap.end() || typeMap[c].empty()) {
+                cout << "NA\n";
+            } else {
+                for (const auto& student : typeMap[c]) {
+                    cout << student.test << " " << student.score << "\n";
+                }
+            }
+        } else if (a == 2) {
+            string h;
+            cin >> h;
+            cout << h << "\n";
+            
+            if (siteMap.find(h) == siteMap.end()) {
+                cout << "NA\n";
+            } else {
+                cout << siteMap[h].first << " " << siteMap[h].second << "\n";
+            }
+        } else if (a == 3) {
+            string ymd;
+            cin >> ymd;
+            cout << ymd << "\n";
+            
+            if (dateMap.find(ymd) == dateMap.end() || dateMap[ymd].empty()) {
+                cout << "NA\n";
+            } else {
+                unordered_map<string, int> siteCount;
+                for (const auto& student : dateMap[ymd]) {
+                    siteCount[student.num]++;
+                }
+                
+                vector<stage> result;
+                for (const auto& pair : siteCount) {
+                    result.emplace_back(pair.first, pair.second);
+                }
+                
+                sort(result.begin(), result.end());
+                for (const auto& site : result) {
+                    cout << site.nums << " " << site.man << "\n";
+                }
+            }
+        } else {
+            string temp;
+            cin >> temp;
+            cout << temp << "\n";
+            cout << "NA\n";
+        }
+    }
+    
+    return 0;
+}
+```
+
+超级麻烦，我写的代码太丑陋了，遂贴一下ai写的。
+
+这种东西感觉意义不大，转专业考试不可能真考这种东西。
+
+## 1096
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int k,n;
+int main(){
+    cin>>k;
+    while (k--){
+        cin>>n;
+        vector<int> ans;
+        set<int> s;
+        for (int i=1;i<=n;i++){
+            if (n%i==0&&s.find(i)==s.end()){
+                ans.push_back(i);
+                s.insert(i);
+            }
+        }
+        if (ans.size()<4){
+            cout<<"No"<<endl;
+            continue;
+        }
+        bool flag=0;
+        for (int i=0;i<ans.size();i++){
+            for (int j=i+1;j<ans.size();j++){
+                for (int k=j+1;k<ans.size();k++){
+                    int a=ans[i];
+                    int b=ans[j];
+                    int c=ans[k];
+                    int sum=a+b+c;
+                    int res=sum%n;
+                    int d=res==0?n:n-res;
+                    if (s.find(d)!=s.end()&&d!=a&&d!=b&&d!=c){
+                        flag=1;
+                    }
+                }
+            }
+        }
+        if (flag==1){
+            cout<<"Yes"<<endl;
+        }else{
+            cout<<"No"<<endl;
+        }
+    }
+    return 0;
+}
+```
+
+这题其实挺难的，放在5k+1这个地方其实不太合理，至少的是5k+4的水平。
+
+这题最难想的其实是如何去降低时间复杂度
+
+我最开始想的是只枚举两个因子，剩下的两个因子用除法除出来，但是那样子其实怪麻烦的，因为我试了一下枚举三个也能过
+
+枚举三个，然后计算出第四个，看第四个是不是满足条件的因子，如果是，那就重置flag为1，结束循环
+
+## 1097
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,k,x;
+int main(){
+    cin>>n>>k>>x;
+    vector<vector<int>> a(n+1,vector<int>(n+1));
+    for (int i=0;i<n;i++){
+        for (int j=0;j<n;j++){
+            cin>>a[i][j];
+        }
+    }
+    int idx=0;
+    int cur=1;
+    while (idx<=n){
+        deque<int> d;
+        for (int i=0;i<n;i++){
+            d.push_back(a[idx][i]);
+        }
+        for (int i=0;i<cur;i++){
+            d.pop_back();
+            d.push_front(x);
+        }
+        a[idx].clear();
+        for (int i=0;i<n;i++){
+            a[idx].push_back(d.front());
+            d.pop_front();
+        }
+        idx+=2;
+        if (cur==k){
+            cur=1;
+        }else{
+            cur++;
+        }
+    }
+    vector<int> ans;
+    for (int i=0;i<n;i++){
+        int sum=0;
+        for (int j=0;j<n;j++){
+            sum+=a[j][i];
+        }
+        ans.push_back(sum);
+    }
+    for (int i=0;i<n;i++){
+        if (i==n-1){
+            cout<<ans[i];
+        }else{
+            cout<<ans[i]<<" ";
+        }
+    }
+    return 0;
+}
+```
+
+双端队列秒了
+
+## 1098
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+int main(){
+    cin>>n;
+    vector<int> high(n+1);
+    vector<int> loww(n+1);
+    int maxx=0;
+    int minn=1010;
+    for (int i=0;i<n;i++){
+        cin>>high[i];
+        minn=min(high[i],minn);
+    }
+    for (int i=0;i<n;i++){
+        cin>>loww[i];
+        maxx=max(loww[i],maxx);
+    }
+    if (maxx>=minn){
+        cout<<"No"<<" "<<maxx-minn+1;
+    }else if(minn>maxx){
+        cout<<"Yes"<<" "<<minn-maxx;
+    }
+    return 0;
+}
+```
+
+好题，比前面的百行大模拟好多了，更贴近于思维的培养而不是让你疯狂写代码，PAT史里淘金了这下。
+
+观察就会发现，只要上界的最小值比下界的最大值大，那么就一定没办法修成管道，反之则一定可以，至于最大的和要削多少，一个是上下界差值，一个是上下界距离加一。
+
+不懂的自己拿画图软件模拟一下就知道了。
+
+## 1099
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+bool isprime(int n){
+    if (n<2) return false;
+    if (n==2) return true;
+    for (int i=2;i*i<=n;i++){
+        if (n%i==0) return false;
+    }
+    return true;
+}
+bool sexprime(int n){
+    int a=n-6;
+    int b=n+6;
+    if (isprime(a)||isprime(b)){
+        return true;
+    }
+    return false;
+}
+int n;
+int main(){
+    cin>>n;
+    if (isprime(n)){
+        int a=n+6;
+        int b=n-6;
+        if (isprime(a)&&isprime(b)){
+            cout<<"Yes"<<endl;
+            cout<<b<<endl;
+            return 0;
+        }else if(isprime(a)&&!isprime(b)){
+            cout<<"Yes"<<endl;
+            cout<<a<<endl;
+            return 0;
+        }else if(!isprime(a)&&isprime(b)){
+            cout<<"Yes"<<endl;
+            cout<<b<<endl;
+            return 0;
+        }
+        int ans;
+        for (int i=n+1;;i++){
+            if (isprime(i)&&sexprime(i)){
+                ans=i;
+                break;
+            }
+        }
+        cout<<"No"<<endl;
+        cout<<ans<<endl;
+        return 0;
+    }
+    if (!isprime(n)){
+        cout<<"No"<<endl;
+        int ans;
+        for (int i=n+1;;i++){
+            if (isprime(i)&&sexprime(i)){
+                ans=i;
+                break;
+            }
+        }
+        cout<<ans<<endl;
+        return 0;
+    }
 }
 ```
 
