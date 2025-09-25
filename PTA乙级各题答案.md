@@ -2611,7 +2611,7 @@ int main(){
 
 螺旋矩阵，数组类模拟最长的河最高的山，在2014年的NOIP普及组T3就是这个
 
-螺旋矩阵事实上有一个用DFS的做法，但是别想那个了，那个包超时的，我以前练搜索的时候写过一次，递归层数太高了（等下下面贴上洛谷螺旋矩阵我的DFS做法）
+螺旋矩阵事实上有一个用DFS的做法，但是别想那个了，那个包超时的，我以前练搜索的时候写过一次，递归层数太高了（等下下面贴上洛谷螺旋矩阵我的DFS做法）（找不到了，怎么回事呢）
 
 为什么用模拟，很简单，模拟是最优算法。
 
@@ -5579,4 +5579,535 @@ int main(){
     }
 }
 ```
+
+## 1100
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+string id;
+class fri{
+    public:
+    string idcard;
+    int year;
+    int month;
+    int day;
+};
+bool cmp(fri a,fri b){
+    if (a.year==b.year){
+        if (a.month==a.month){
+            return a.day<b.day;
+        }else{
+            return a.month<b.month;
+        }
+    }else{
+        return a.year<b.year;
+    }
+}
+int main(){
+    cin>>n;
+    vector<fri> a(n+1);
+    set<string> s;
+    for (int i=0;i<n;i++){
+        cin>>a[i].idcard;
+        s.insert(a[i].idcard);
+    }
+    int m;
+    cin>>m;
+    vector<fri> ans;
+    int sum=0;
+    for (int i=0;i<m;i++){
+        cin>>id;
+        if (s.find(id)!=s.end()){
+            sum++;
+        }
+        ans.push_back((fri){id,stoi(id.substr(6,4)),stoi(id.substr(10,2)),stoi(id.substr(12,2))});
+    }
+    if (sum==0){
+        cout<<0<<endl;
+        sort(ans.begin(),ans.end(),cmp);
+        cout<<ans[0].idcard<<endl;
+    }else {
+        vector<fri> sch;
+        for (int i=0;i<ans.size();i++){
+            if (s.find(ans[i].idcard)!=s.end()){
+                sch.push_back(ans[i]);
+            }
+        }
+        sort(sch.begin(),sch.end(),cmp);
+        cout<<sum<<endl;
+        cout<<sch[0].idcard<<endl;
+    }
+    return 0;
+}
+```
+
+我越写越觉得这种题没意义啊，锻炼代码能力来的，重要的是稳住以及迅速查找需要的容器。
+
+## 1101
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+//#define int long long
+int a,d;
+int turn_num(int a,int d){
+    deque<int> de;
+    int temp;
+    while (a>0){
+        temp=a%10;
+        de.push_front(temp);
+        a/=10;
+    }
+    while (d--){
+        temp=de.back();
+        de.pop_back();
+        de.push_front(temp);
+    }
+    int res=0;
+    for (auto it:de){
+        res=res*10+it;
+    }
+    return res;
+}
+signed main(){
+    cin>>a>>d;
+    int b=turn_num(a,d);
+    double ans=(double)b/a;//注意这里
+    //cout<<b<<endl;
+    printf("%.2f",ans);
+    return 0;
+}
+```
+
+## 1102
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+class works{
+    public:
+    string id;
+    int price;
+    int sell;
+};
+bool cmp1(works a,works b){
+    return a.sell>b.sell;
+}
+bool cmp2(works a,works b){
+    return a.sell*a.price>b.sell*b.price;
+}
+int main(){
+    cin>>n;
+    vector<works> ans(n);
+    for (int i=0;i<n;i++){
+        cin>>ans[i].id>>ans[i].price>>ans[i].sell;
+    }
+    sort(ans.begin(),ans.end(),cmp1);
+    cout<<ans[0].id<<" "<<ans[0].sell<<endl;
+    sort(ans.begin(),ans.end(),cmp2);
+    cout<<ans[0].id<<" "<<ans[0].sell*ans[0].price<<endl;
+    return 0;
+}
+```
+
+## 1103
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+bool isquare(int n){
+    if (n<0) return false;
+    int r=sqrt(n);
+    return r*r==n;
+}
+int m,n;
+signed main(){
+    cin>>m>>n;
+    int flag=0;
+    for (int i=m;i<=n;i++){
+        int a=i*i*i-(i-1)*(i-1)*(i-1);
+        if (isquare(a)){
+            int root=sqrt(a);
+            for (int j=2;j<=root;j++){
+                int b=j*j+(j-1)*(j-1);
+                if (b==root){
+                    cout<<i<<" "<<j<<endl;
+                    flag=1;
+                }
+            }
+        }
+    }
+    if (flag==0){
+        cout<<"No Solution"<<endl;
+    }
+    return 0;
+}
+```
+
+这一题重点在于平方数的判断，直接把那个函数背下来就好了
+
+其他的就是去枚举答案，符合条件的输出就行，因为数据范围很小。
+
+## 1104
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+int n,k,m;
+string num;
+class node{
+    public:
+    int w;
+    int ansnum;
+};
+bool cmp(node a,node b){
+    if (a.w==b.w){
+        return a.ansnum<b.ansnum;
+    }else{
+        return a.w<b.w;
+    }
+}
+int gcd(int a,int b){
+    return b==0?a:gcd(b,a%b);
+}
+bool isprime(int n){
+    if (n<2) return false;
+    if (n==2) return true;
+    for (int i=2;i*i<=n;i++){
+        if (n%i==0){
+            return false;
+        }
+    }
+    return true;
+}
+int sum_num(int a){
+    int res=0;
+    while (a>0){
+        int temp=a%10;
+        res+=temp;
+        a/=10;
+    }
+    return res;
+}
+vector<node> ans;
+void dfs(int step,int sum){
+    if (step==k-2){
+        string s=num+"99";
+        int a=stoll(s);
+        if (sum_num(a)!=m) return;
+        int b=a+1;
+        int sum_b=sum_num(b);
+        if (gcd(sum_b,m)>2&&isprime(gcd(sum_b,m))){
+            ans.push_back((node){sum_b,a});
+        }
+        return;
+    }
+    int tbegin=(step==0)?1:0;
+    for (int i=tbegin;i<=9;i++){
+        if (sum+i>m-18){
+            continue;
+        }else{
+            num.push_back('0'+i);
+            dfs(step+1,sum+i);
+            num.pop_back();
+        }
+    }
+}
+signed main(){
+    cin>>n;
+    int cur=1;
+    while (n--){
+        cin>>k>>m;
+        int flag=0;
+        dfs(0,0);
+        cout<<"Case "<<cur<<endl;
+        cur++;
+        if (ans.size()==0){
+            cout<<"No Solution"<<endl;
+        }else{
+            sort(ans.begin(),ans.end(),cmp);
+            for (int i=0;i<ans.size();i++){
+                cout<<ans[i].w<<" "<<ans[i].ansnum<<endl;
+            }
+        }
+        ans.clear();
+    }
+    return 0;
+}
+```
+
+PTA算法感最强的一题，涉及算法DFS，而且并非普通DFS。
+
+目前来看，这一题的难度大于前面104题，等我做完我可以给个结论这题是不是最难的。
+
+现在进入正文，如果你尚且对DFS/BFS没有一点了解，现在应该立刻去补修相关知识，这很重要。
+
+并且这一题最基本的点是你要懂的gcd函数，素数判断函数，求各位和函数怎么写，这个都不会等着爆0。
+
+在我的认知中，DFS一般是用来求解和图论相关的问题的，我在内心把图论和DFS绑在了一起，导致了我在面对这种题目时没有第一时间想到DFS。
+
+DFS的大名叫做深度优先搜索，什么是搜索，搜是一个动词，而索这个字告诉了你，进行这个行为需要你提供索引。
+
+我们发现这个数据范围给的非常大，已经达到了10的十次方级别了，就算是O(n)的复杂度也是一样会超时的（热知识，一般而言最差时间达到10的七次方，那大概率会有测试点爆TLE）因此常规的枚举是绝对不可能用的。在面对这种超大数据范围时，DFS是一个很优秀的选择，通过与其关联的剪枝和回溯两个算法可以很显著的降低时间复杂度。
+
+我们观察发现，求数一定要以9结尾，否则不可能与原数有一个大于2的最大公约数，且至少需要2个末尾9（题目样例和实际验证表明，单个末尾9通常难以满足条件，或者解不完整）。
+
+DFS主函数的内部算法是通过step记录现在数字字符串已经有几位了，通过sum来记录现在各位数字的和。在最开始，我们需要判断，当step==k-2时，即说明这个数字已经被填充好了，找到了第一个数字，可以进行判断，而判断的方法就和题面描述的一样，最后将满足条件的答案存入ans数组并且输出就可以了。
+
+（这题用暴力枚举可以得到12分，也就是及格分，在这里陈越手下留情了，没有让暴力直接爆0）
+
+下面我给出AI的一些补充
+
+> 非常好！这是一个很核心的问题。搜索算法（特别是DFS和BFS）是解决许多算法问题的“万能钥匙”，但不同题型使用搜索的意图和方式也不同。
+>
+> 以下是那些**频繁且典型**地使用搜索算法（DFS, BFS及其变种）的题型分类，并附上了它们的核心特征和经典例题：
+>
+> ------
+>
+> ### 1. 路径与连通性问题
+>
+> 这类问题通常在一个抽象的“图”结构（如网格、迷宫、关系网）中寻找路径或判断连通性。
+>
+> - **题型特征**：给定一个起点、一个或多个终点，以及一些障碍或规则，问能否到达、最短路径是什么、有多少种路径等。
+> - **常用搜索**：**BFS**（求最短、最小步数）、**DFS**（记录所有路径）。
+> - **经典例题**：
+>   - **迷宫问题**：从左上角到右下角，`1`代表墙，`0`代表路，求最短路径。
+>   - **岛屿数量**（Leetcode 200）：网格中，`1`是陆地，`0`是水，计算岛屿的数量（连通块的个数，DFS/BFS均可用于标记和计数）。
+>   - **单词接龙**（Leetcode 127）：给定单词列表，每次变一个字母，求从beginWord到endWord的最短转换序列长度。这是将单词抽象为节点，构建图模型后用BFS求解的经典案例。
+>
+> ### 2. 排列、组合、选择问题
+>
+> 这类问题需要枚举所有可能的组合情况，是DFS最经典的应用场景。
+>
+> - **题型特征**：题目中经常出现“所有可能”、“所有组合”、“全部情况”等字眼。需要系统性地遍历所有候选答案。
+> - **常用搜索**：**回溯法（Backtracking）**，这是DFS的一种，其特点是在递归前后进行“选择”和“撤销选择”。
+> - **经典例题**：
+>   - **全排列**（Leetcode 46）：给定一个不含重复数字的数组，返回其所有可能的排列。
+>   - **组合总和**（Leetcode 39）：给定一个无重复元素的数组和一个目标数，找出所有可以使数字和为目标数的组合（数字可重复使用）。
+>   - **子集**（Leetcode 78）：给定一组不含重复元素的整数数组，返回其所有可能的子集。
+>   - **N皇后**（Leetcode 51）：如何将n个皇后放置在n×n的棋盘上，并且使皇后彼此之间不能相互攻击。需要枚举所有可能的摆放位置。
+>
+> ### 3. 棋盘、网格类游戏与状态搜索
+>
+> 这类问题可以看作是**路径问题**和**排列问题**的更复杂结合，状态由整个棋盘或系统的多个因素共同定义。
+>
+> - **题型特征**：问题局面会随着你的操作而改变，每一步操作都会让局面从一个“状态”转移到另一个“状态”。目标是找到从初始状态到目标状态的操作序列。
+> - **常用搜索**：**BFS**（求最少步数）、**双向BFS**（优化）、**A\***（启发式搜索）。
+> - **经典例题**：
+>   - **滑动谜题**（Leetcode 773）：在一个2x3的棋盘上，有5个块和一个空位，通过滑动块到空位来解开谜题，求最少步数。需要将整个棋盘的局面编码为一个“状态”进行BFS。
+>   - **华容道**：类似滑动谜题，但更复杂。
+>   - **翻转游戏**或**点亮所有的灯**：每次操作一个格子会影响其周围格子的状态。
+>
+> ### 4. 树形结构相关问题
+>
+> 树是一种特殊的图，遍历树本身就是一种搜索。
+>
+> - **题型特征**：直接给出树结构（二叉树、N叉树），或者问题可以抽象为一棵树（如决策树）。
+> - **常用搜索**：**DFS**（前序、中序、后序遍历）、**BFS**（层序遍历）。
+> - **经典例题**：
+>   - **二叉树的所有路径**（Leetcode 257）：用DFS记录从根节点到叶子节点的所有路径。
+>   - **二叉树的最大深度**（Leetcode 104）：可用DFS递归或BFS层序计数求解。
+>   - **二叉树的序列化与反序列化**：利用DFS或BFS遍历来编码和解码树的结构。
+>
+> ### 5. 约束满足问题
+>
+> 这类问题是搜索的高阶应用，需要满足多重约束条件。
+>
+> - **题型特征**：在尝试填充或安排事物时，必须满足一系列复杂的条件（约束）。
+> - **常用搜索**：**回溯法**，并通常会结合**剪枝**和**启发式**来极大优化效率。
+> - **经典例题**：
+>   - **数独求解**（Leetcode 37）：填充空格，使得每行、每列、每一个3x3子宫格都包含1-9且不重复。是回溯+剪枝的完美例子。
+>   - **N皇后问题**（也属于此类）：约束是同一行、列、对角线上不能有两个皇后。
+>
+> ------
+>
+> ### 总结与思维模式
+>
+> 当你遇到一个新问题时，可以通过问自己以下问题来判断是否适用搜索算法：
+>
+> 1. **是否可以建模为“图”？** 问题是否有“节点”（状态、位置）和“边”（操作、转换方式）的概念？
+> 2. **是否需要枚举？** 问题是否要求找出所有可能的方案，而不是一个数学公式解？
+> 3. **是否有明显的操作步骤？** 每一步是否都有几种选择，从而形成一棵巨大的“选择树”？
+>
+> 如果答案是肯定的，那么搜索算法很大概率就是解决问题的正确方向。**DFS** 更适合深入探索所有分支（如所有排列），而 **BFS** 更适合寻找最短路径或最近目标。**回溯** 是DFS在可撤销选择场景下的特化，而 **剪枝** 是优化任何搜索过程、避免无效探索的关键技术。
+>
+> 希望这个分类能帮助你建立清晰的解题思路！
+
+
+
+> 好的，我们来深入探讨一下搜索算法（特别是**回溯法 Backtracking**）在**排列、组合、选择**类问题中的核心应用。这是深度优先搜索（DFS）最经典和强大的应用场景之一。
+>
+> ### 核心思想：决策树与系统性枚举
+>
+> 解决这类问题的关键，在于将问题抽象为一棵**决策树（或状态树）**。
+>
+> - **节点**：代表你在解决问题过程中所处的**状态**（例如，已经选择了哪些数字）。
+> - **分支**：代表你可做的**选择**（例如，下一个数字可以选哪个）。
+> - **叶子节点**：代表一个**完整解**（例如，一个完整的排列或组合）。
+>
+> 搜索算法（回溯法）的任务，就是**从根节点开始，系统地、不重复也不遗漏地遍历这棵决策树的所有分支，以找到所有满足条件的叶子节点**。
+>
+> ------
+>
+> ### 两大经典问题与模板
+>
+> 我们通过两个最基础的问题来理解回溯法的应用。
+>
+> #### 1. 排列问题 - “顺序有关”
+>
+> **问题**：给定一个不含重复数字的数组 `[1, 2, 3]`，返回其所有可能的排列。顺序不同，即为不同的解。
+>
+> **解**：`[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,3]`
+>
+> **回溯思路**：
+>
+> - **选择**：每一步，你都可以从**所有未被使用的元素**中选择一个。
+> - **路径**：记录当前已经做出了哪些选择（即当前排列）。
+> - **状态**：除了记录路径，还需要记录哪些元素已经被使用过了（通常用一个 `used`数组标记）。
+> - **回溯**：当探索到叶子节点（一个完整排列）后，需要**撤销最后一步的选择**，回到上一层状态，以进行下一个选择。
+>
+> **核心代码模板（C++）**：
+>
+> ```
+> vector<vector<int>> permute(vector<int>& nums) {
+>     vector<vector<int>> result;
+>     vector<int> path; // 当前路径（当前构造的排列）
+>     vector<bool> used(nums.size(), false); // 标记元素是否被使用过
+>     backtrack(nums, path, used, result);
+>     return result;
+> }
+> 
+> void backtrack(vector<int>& nums, vector<int>& path, vector<bool>& used, vector<vector<int>>& result) {
+>     // 终止条件：路径长度等于原数组长度，说明得到一个完整排列
+>     if (path.size() == nums.size()) {
+>         result.push_back(path);
+>         return;
+>     }
+>     
+>     // 遍历所有选择
+>     for (int i = 0; i < nums.size(); i++) {
+>         if (used[i]) continue; // 如果这个数字已经用过，跳过
+>         // 做选择
+>         used[i] = true;
+>         path.push_back(nums[i]);
+>         // 进入下一层决策树
+>         backtrack(nums, path, used, result);
+>         // 撤销选择（回溯的核心）
+>         used[i] = false;
+>         path.pop_back();
+>     }
+> }
+> ```
+>
+> #### 2. 组合问题 - “顺序无关”
+>
+> **问题**：给定两个整数 `n = 4, k = 2`，返回 `1...n`中所有可能的 `k`个数的组合。
+>
+> **解**：`[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]`(注意 `[2,1]`和 `[1,2]`是同一个组合)
+>
+> **回溯思路**：
+>
+> - **选择**：为了避免重复（`[1,2]`和 `[2,1]`），我们规定一种“顺序”。每一步，只能从**上一个被选择元素之后**的元素开始选择。这引入了 `startIndex`的概念。
+> - **路径**：记录当前已经选择了哪些数字。
+> - **回溯**：同样，在递归返回后需要撤销选择。
+>
+> **核心代码模板（C++）**：
+>
+> ```
+> vector<vector<int>> combine(int n, int k) {
+>     vector<vector<int>> result;
+>     vector<int> path; // 当前路径（当前构造的组合）
+>     backtrack(n, k, 1, path, result); // 从数字1开始
+>     return result;
+> }
+> 
+> void backtrack(int n, int k, int startIndex, vector<int>& path, vector<vector<int>>& result) {
+>     // 终止条件：路径长度等于k
+>     if (path.size() == k) {
+>         result.push_back(path);
+>         return;
+>     }
+>     
+>     // 遍历选择列表：从startIndex开始，到n结束
+>     for (int i = startIndex; i <= n; i++) {
+>         // 做选择
+>         path.push_back(i);
+>         // 进入下一层决策树，下一个数字要从i+1开始选，避免重复
+>         backtrack(n, k, i + 1, path, result);
+>         // 撤销选择
+>         path.pop_back();
+>     }
+> }
+> ```
+>
+> ------
+>
+> ### 关键技巧与变种
+>
+> 掌握了上述两个模板，你就解决了80%的此类问题。剩下的20%在于如何处理**重复元素**和进行**剪枝优化**。
+>
+> #### 1. 处理重复元素（去重）
+>
+> 如果输入集合中有重复元素（如 `[1,2,2]`），直接套用模板会产生重复的解（如两个 `[1,2]`）。
+>
+> - **方法**：先对数组**排序**，让相同的元素紧挨在一起。然后在回溯的循环中增加一个判断：
+>
+>   ```
+>   for (int i = startIndex; i < nums.size(); i++) {
+>       // 跳过同一树层上使用过的相同元素
+>       if (i > startIndex && nums[i] == nums[i-1]) {
+>           continue;
+>       }
+>       // ... 做选择、递归、撤销选择
+>   }
+>   ```
+>
+>   - **理解**：`i > startIndex`意味着当前不是第一个可选的元素。`nums[i] == nums[i-1]`意味着当前元素和上一个相同。如果上一个相同的元素**没有被使用**（因为递归返回后已经被撤销了），说明在同一层已经尝试过这个数字了，必须跳过，否则就会产生重复组合。
+>
+> #### 2. 剪枝优化
+>
+> 这是提升回溯算法效率的关键。如果已经能确定从当前节点走下去不可能得到解，就应该提前终止搜索。
+>
+> - **组合问题剪枝**：在循环条件上做文章。
+>
+>   例如在组合问题中，如果 `n=5, k=3`，当前路径 `path.size() = 1`（已选1个），`startIndex=4`。
+>
+>   那么即使把 `4`和 `5`都选上，总数也才 `1 + 2 = 3`，刚好满足。但如果 `startIndex=5`，那么即使把 `5`选上，总数也才 `1 + 1 = 2 < 3`，不可能凑够k个数，这条分支就没必要走了。
+>
+>   - **修改循环条件**：将 `for (int i = startIndex; i <= n; i++)`改为 `for (int i = startIndex; i <= n - (k - path.size()) + 1; i++)`。这个计算确保了后续至少还有 `(k - path.size())`个数字可供选择。
+>
+> ### 总结：一个通用的回溯模板
+>
+> ```
+> void backtrack(参数) {
+>     if (终止条件) {
+>         存放结果;
+>         return;
+>     }
+> 
+>     for (选择：本层集合中的元素) { // 注意可能伴随剪枝操作 (i <= n - ...)
+>         if (一些合法性判断，比如去重、是否已使用等) {
+>             continue;
+>         }
+>         处理节点;
+>         backtrack(路径，选择列表); // 递归
+>         回溯，撤销处理结果;
+>     }
+> }
+> ```
+>
+> **核心四步曲**：
+>
+> 1. **确认递归参数与终止条件**：什么时候算得到一个解？
+> 2. **遍历本层的所有选择**：for循环。
+> 3. **处理节点**：做出一个选择，更新状态。
+> 4. **递归**：进入下一层决策树。
+> 5. **回溯**：撤销第3步的操作，这是最关键的一步，让状态恢复到进行下一个选择之前。
+>
+> N皇后、子集、分割回文串等问题，都是这个框架的变形。多练习几道题，你就能深刻体会到这个“模板”的强大之处。
 
