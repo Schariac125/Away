@@ -6,9 +6,11 @@
 
 不排除PAT官方后续修改测试数据而导致答案出现错误的情况，如有发现可向我反馈（反馈方式已经贴在了README文件中）
 
+有不懂的可以在转专业大群找到我并询问（~~如果我还记得我这串代码写了什么~~）
+
 编译语言为C++（g++），其他编译语言如C不保证能够通过（绝对不保证能通过）。
 
-因笔者水平有限，答案并不一定为时间空间复杂度最优解（其实是大部分不是），只保证可AC，oi大佬轻喷OTZ
+因笔者水平有限，答案并不一定为时间空间复杂度最优解（~~其实是大部分不是~~），只保证可AC，oi大佬轻喷OTZ
 
 ​                                                                                                                                                                                                     ——By Schariac125
 
@@ -6111,3 +6113,281 @@ DFS主函数的内部算法是通过step记录现在数字字符串已经有几�
 >
 > N皇后、子集、分割回文串等问题，都是这个框架的变形。多练习几道题，你就能深刻体会到这个“模板”的强大之处。
 
+## 1105
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+const int MAXN = 100000; // 地址最大范围
+
+struct Node {
+    int data, next;
+} nodes[MAXN]; // 静态链表，索引代表地址
+
+int main() {
+    int head1, head2, n;
+    cin >> head1 >> head2 >> n;
+    
+    // 读取所有结点
+    for (int i = 0; i < n; i++) {
+        int addr, data, next;
+        cin >> addr >> data >> next;
+        nodes[addr] = {data, next};
+    }
+    
+    // 构建链表L1和L2的地址序列
+    vector<int> L1, L2;
+    for (int p = head1; p != -1; p = nodes[p].next) 
+        L1.push_back(p);
+    for (int p = head2; p != -1; p = nodes[p].next) 
+        L2.push_back(p);
+    
+    // 确保L1是长链表
+    if (L1.size() < L2.size()) 
+        swap(L1, L2);
+    
+    // 逆序短链表L2
+    reverse(L2.begin(), L2.end());
+    
+    // 合并：每两个L1结点插入一个L2结点
+    vector<int> ans;
+    int j = 0; // L2的索引
+    for (int i = 0; i < L1.size(); i++) {
+        ans.push_back(L1[i]);
+        // 当已插入L1的结点数为奇数（i从0开始，i=1代表第二个结点）且L2还有结点
+        if ((i + 1) % 2 == 0 && j < L2.size()) { 
+            ans.push_back(L2[j++]);
+        }
+    }
+    
+    // 输出结果
+    for (int i = 0; i < ans.size(); i++) {
+        if (i == ans.size() - 1) 
+            printf("%05d %d -1\n", ans[i], nodes[ans[i]].data);
+        else 
+            printf("%05d %d %05d\n", ans[i], nodes[ans[i]].data, ans[i + 1]);
+    }
+    
+    return 0;
+}
+```
+
+（有人被样例误导了看反两条链表结果找bug快一个小时没找出来，这样例属实太过神人了）
+
+（看反两条链表你知道能过多少个测试点吗，能过4个拿到22分，这就是我找bug没往这里找的原因，我一直以为是我链表的插入逻辑写错了，气笑了）
+
+## 1106
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+int main(){
+    cin>>n;
+    vector<int> ans(n+2);
+    ans[0]=2,ans[1]=0,ans[2]=1,ans[3]=9;
+    int pos=4;
+    while (pos<=n){
+        ans[pos]=(ans[pos-1]+ans[pos-2]+ans[pos-3]+ans[pos-4])%10;
+        pos++;
+    }
+    for (int i=0;i<n;i++){
+        cout<<ans[i];
+    }
+    return 0;
+}
+```
+
+## 1107
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;
+bool cmp(int a,int b){
+    return a>b;
+}
+int main(){
+    cin>>n>>m;
+    vector<int> ans;
+    for (int i=0;i<n;i++){
+        vector<int> b(m);
+        for (int j=0;j<m;j++){
+            cin>>b[j];
+        }
+        sort(b.begin(),b.end(),cmp);
+        ans.push_back(b[0]);
+    }
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1) cout<<ans[i]<<endl;
+        else{
+            cout<<ans[i]<<" ";
+        }
+    }
+    sort(ans.begin(),ans.end(),cmp);
+    cout<<ans[0]<<endl;
+    return 0;
+}
+```
+
+## 1108
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string s;
+string ans="String";
+int main(){
+    getline(cin,s);
+    unordered_map<char,int> m;
+    int sum=0;
+    for (char c:s){
+        if (c=='S'||c=='t'||c=='r'||c=='i'||c=='n'||c=='g'){
+            m[c]++;
+            sum++;
+        }
+    }
+    string res;
+    while (sum>0){
+        for (char c:ans){
+            if (m[c]>0){
+                res+=c;
+                m[c]--;
+                sum--;
+            }else{
+                continue;
+            }
+        }
+    }
+    cout<<res<<endl;
+    return 0;
+}
+```
+
+这题和1043完全一样啊，做法是完全相同的。
+
+## 1109
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string ans;
+int main(){
+    unordered_map<char,vector<vector<char>>> image;
+    for (int i=0;i<26;i++){
+        char c='A'+i;
+        image[c]=vector<vector<char>>(7,vector<char>(5));
+        for (int j=0;j<7;j++){
+            for (int k=0;k<5;k++){
+                cin>>image[c][j][k];
+            }
+        }
+    }
+    cin.ignore();
+    getline(cin,ans);
+    string word;
+    vector<string> words;
+    for (int i=0;i<ans.size();i++){
+        if (ans[i]>='A'&&ans[i]<='Z'){
+            word+=ans[i];
+        }else{
+            if (!word.empty()){
+                words.push_back(word);
+                word.clear();
+            }
+        }
+    }
+    if (!word.empty()){
+        words.push_back(word);
+        word.clear();
+    }//模板，分割字符串用的。
+    for (int i=0;i<words.size();i++){
+        for (int r=0;r<7;r++){//这两个循环顺序不能换
+            for (int j=0;j<words[i].size();j++){
+                for (int c=0;c<5;c++){
+                    cout<<image[words[i][j]][r][c];
+                }
+                if (j!=words[i].size()-1) cout<<" ";
+            }
+            cout<<endl;
+        }
+        if (i!=words.size()-1) cout<<endl; 
+    }
+    return 0;
+}
+```
+
+大胆尝试在unordered_map里面内嵌一个二维数组吧
+
+## 1110
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+class node{
+    public:
+    int add;
+    int data;
+    int next;
+};
+int main(){
+    vector<node> listnode;
+    unordered_map<int,node> m;
+    int tbegin,n,k;
+    cin>>tbegin>>n>>k;
+    for (int i=0;i<n;i++){
+        node l;
+        cin>>l.add>>l.data>>l.next;
+        m[l.add]=l;
+    }
+    while (tbegin!=-1){
+        listnode.push_back(m[tbegin]);
+        tbegin=m[tbegin].next;
+    }
+    vector<node> ans;
+    int pos=listnode.size();
+    int last=pos%k;
+    stack<node> s;
+    pos--;
+    if (last!=0){
+        while (last--){
+            s.push(listnode[pos]);
+            pos--;
+        }
+        while (!s.empty()){
+            ans.push_back(s.top());
+            s.pop();
+        }
+    }
+    while (pos>=0){
+        s.push(listnode[pos]);
+        pos--;
+        if (s.size()==k){
+            while (!s.empty()){
+                ans.push_back(s.top());
+                s.pop();
+            }
+        }
+    }
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1) ans[i].next=-1;
+        else ans[i].next=ans[i+1].add;
+    }
+    for (int i=0;i<ans.size();i++){
+        if (i==ans.size()-1){
+            printf("%05d %d %d\n",ans[i].add,ans[i].data,ans[i].next);
+        }else{
+            printf("%05d %d %05d\n",ans[i].add,ans[i].data,ans[i].next);
+        }
+    }
+    return 0;
+} 
+```
+
+链表题，其实这类题目都是同一个模板和套路，目测应该整不出什么花活
