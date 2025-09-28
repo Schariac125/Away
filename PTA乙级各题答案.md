@@ -6391,3 +6391,357 @@ int main(){
 ```
 
 链表题，其实这类题目都是同一个模板和套路，目测应该整不出什么花活
+
+## 1111
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int n;
+    string month,day,year;
+    cin>>n;
+    unordered_map<string,string> m;
+    m.emplace("Jan","01");
+    m.emplace("Feb","02");
+    m.emplace("Mar","03");
+    m.emplace("Apr","04");
+    m.emplace("May","05");
+    m.emplace("Jun","06");
+    m.emplace("Jul","07");
+    m.emplace("Aug","08");
+    m.emplace("Sep","09");
+    m.emplace("Oct","10");
+    m.emplace("Nov","11");
+    m.emplace("Dec","12");
+    for (int i=0;i<n;i++){
+        cin>>month>>day>>year;
+        if (!day.empty()&&day.back()==','){
+            day.pop_back();
+        }
+        while (day.size()<2){
+            day="0"+day;
+        }
+        while (year.size()<4){
+            year="0"+year;
+        }
+        string s;
+        s+=year;
+        s+=m[month];
+        s+=day;
+        string temp=s;
+        reverse(temp.begin(),temp.end());
+        if (temp==s){
+            cout<<"Y"<<" "<<s<<endl;
+        }else{
+            cout<<"N"<<" "<<s<<endl;
+        }
+    }
+    return 0;
+}
+```
+
+什么叫做读入逗号？
+
+## 1112
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,t;
+class node{
+    public:
+    int tbegin,tend;
+};
+int main(){
+    cin>>n>>t;
+    vector<int> num(n+2);
+    for (int i=0;i<n;i++){
+        cin>>num[i];
+    }
+    vector<node> ans;
+    for (int i=0;i<n;){
+        if (num[i]>t){
+            node a;
+            a.tbegin=i;
+            while (i<n){
+                if (num[i]<=t){
+                    break;
+                }else{
+                    i++;
+                }
+            }
+            a.tend=i-1;
+            ans.push_back(a);
+        }else{
+            i++;
+        }
+    }
+    if (ans.size()!=0){
+    for (int i=0;i<ans.size();i++){
+        printf("[%d, %d]\n",ans[i].tbegin,ans[i].tend);
+    }
+    }else{
+        int maxx=0;
+        for (int i=0;i<n;i++){
+            maxx=max(maxx,num[i]);
+        }
+        cout<<maxx<<endl;
+    }
+    return 0;
+}
+```
+
+## 1113
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string chuan="0123456789abcdefghijklmnopqrst";
+
+int char_to_val(char c){
+    if (c>='0' && c<='9') return c-'0';
+    return c-'a'+10;
+}
+
+string addition(string a,string b){
+    string res;
+    while (a.size()<b.size()) a='0'+a;
+    while (b.size()<a.size()) b='0'+b;
+    int n=a.size();
+    int p=0;
+    for (int i=n-1;i>=0;i--){
+        int x=char_to_val(a[i]);
+        int y=char_to_val(b[i]);
+        int temp=(x+y+p)%30;
+        p=(x+y+p)/30;
+        res=chuan[temp]+res;
+    }
+    if (p!=0) res=chuan[p]+res;
+    int pos=0;
+    while (pos<res.size() && res[pos]=='0') pos++;
+    if (pos==res.size()) return "0";
+    return res.substr(pos);
+}
+
+int main(){
+    string n1,n2;
+    cin>>n1>>n2;
+    cout<<addition(n1,n2)<<endl;
+}
+```
+
+你要知道，在非10进制的加减法，可能使用高精度计算远远比你进制转化了再转化回去简单，因为高精度计算的进制是可以通过直接修改参数来实现。
+
+上面已经写过那么多题高精度了，这下应该得会吧。
+
+## 1114
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+bool isprime(int n){
+    if (n<2) return false;
+    if (n==2) return true;
+    for (int i=2;i*i<=n;i++){
+        if (n%i==0){
+            return false;
+        }
+    }
+    return true;
+}
+string s;
+int main(){
+    cin>>s;
+    int sum=0;
+    for (int i=0;i<s.size();i++){
+        string num;
+        num=s.substr(i);
+        int x=stoi(num);
+        if (isprime(x)){
+            cout<<num<<" "<<"Yes"<<endl;
+            sum++;
+        }else{
+            cout<<num<<" "<<"No"<<endl;
+        }
+    }
+    if (sum==s.size()){
+        cout<<"All Prime!"<<endl;
+    }
+    return 0;
+}
+```
+
+## 1115
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+const int MAX_SIZE=200001;
+
+int main(){
+    int x,y;
+    cin>>x>>y;
+    int n,m;
+    cin>>n>>m;
+    vector<vector<int>>g(n,vector<int>(m));
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            cin>>g[i][j];
+        }
+    }
+
+    int used[MAX_SIZE]={0};
+    int loser[11]={0};
+    vector<int>existed;
+    vector<int>winner;
+
+    used[x]=1;
+    used[y]=1;
+    existed.push_back(x);
+    existed.push_back(y);
+    int life=n;
+
+    for(int i=0;i<m;i++){
+        vector<int>round_outs;
+        for(int j=0;j<n;j++){
+            int id=j+1;
+            if(loser[id]==1){
+                continue;
+            }
+            int num=g[j][i];
+            if(used[num]==1){
+                round_outs.push_back(id);
+                loser[id]=1;
+                life--;
+                continue;
+            }
+            bool flag=false;
+            for(auto a:existed){
+                if(a+num<MAX_SIZE&&used[a+num]==1){
+                    flag=true;
+                    break;
+                }
+                if(a>num&&used[a-num]==1){
+                    flag=true;
+                    break;
+                }
+            }
+            if(flag){
+                used[num]=1;
+                existed.push_back(num);
+            }else{
+                round_outs.push_back(id);
+                loser[id]=1;
+                life--;
+            }
+        }
+        if(!round_outs.empty()){
+            sort(round_outs.begin(),round_outs.end());
+            for(auto id:round_outs){
+                cout<<"Round #"<<i+1<<": "<<id<<" is out."<<endl;
+            }
+        }
+        if(life==0){
+            cout<<"No winner."<<endl;
+            return 0;
+        }
+    }
+
+    if(life>0){
+        for(int i=1;i<=n;i++){
+            if(loser[i]==0){
+                winner.push_back(i);
+            }
+        }
+        cout<<"Winner(s): ";
+        for(size_t i=0;i<winner.size();i++){
+            if(i==winner.size()-1){
+                cout<<winner[i];
+            }else{
+                cout<<winner[i]<<" ";
+            }
+        }
+        cout<<endl;
+    }
+
+    return 0;
+}
+```
+
+## 1116
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+bool cmp(string a,string b){
+    if (a.size()!=b.size()) return a.size()>b.size();
+    return a>=b;
+}
+string subtraction(string a,string b){
+    string res,ans;
+    bool flag=0;
+    if (!cmp(a,b)){
+        swap(a,b);
+        flag=1;
+    }
+    while (b.size()<a.size()){
+        b='0'+b;
+    }
+    int n=a.size();
+    int p=0;
+    for (int i=n-1;i>=0;i--){
+        int x=(a[i]-'0')-p;
+        int y=(b[i]-'0');
+        if (x>=y){
+            int temp=(x-y);
+            res+=(char)('0'+temp);
+            p=0;
+        }else{
+            int temp=(10+x-y);
+            res+=(char)('0'+temp);
+            p=1;
+        }
+    }
+    reverse(res.begin(),res.end());
+    int pos=0;
+    while (pos<res.size()&&res[pos]=='0'){
+        pos++;
+    }
+    if (pos==res.size()) return "0";
+    else{
+        ans=res.substr(pos);
+        if (flag) ans='-'+ans;
+    }
+    return ans;
+}
+
+int main(){
+    string s;
+    cin>>s;
+    int n=s.size();
+    if (n%2==1){
+        cout<<"Error: "<<n<<" digit(s)"<<endl;
+        return 0;
+    }
+    string a=s.substr(0,n/2);
+    string b=s.substr(n/2);
+    if (subtraction(b,a)=="2"){
+        cout<<"Yes: "<<b<<" - "<<a<<" = 2"<<endl;
+    }else{
+        cout<<"No: "<<b<<" - "<<a<<" != 2"<<endl;
+    }
+    return 0;
+}
+```
+
+其实这一题用不着这么麻烦，因为这题陈越手下留情了，尾数不会比7大。
+
+但是这依然是一题练习高精度减法的好题。如果你对高精度减法不是很熟悉，那可以正好趁这一题练习一下，思路和前面的高精度加法其实大差不差。
+
+多学一点总不坏不是吗，如果考出来了你不就比别人多AC一题？
