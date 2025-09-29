@@ -6745,3 +6745,719 @@ int main(){
 但是这依然是一题练习高精度减法的好题。如果你对高精度减法不是很熟悉，那可以正好趁这一题练习一下，思路和前面的高精度加法其实大差不差。
 
 多学一点总不坏不是吗，如果考出来了你不就比别人多AC一题？
+
+## 1117
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+
+int sumnum(int a){
+    int res=0;
+    while (a>0){
+        int temp=a%10;
+        res+=temp;
+        a/=10;
+    }
+    return res;
+}
+int sq(int a){
+    if (a==0){
+        return 0;
+    }
+    int res=1;
+    while (a>0){
+        int t=a%10;
+        res=res*(t*t*t);
+        a/=10;
+    }
+    return res;
+}
+int n1,n2;
+signed main(){
+    cin>>n1>>n2;
+    vector<int> ans;
+    for (int i=n1;i<=n2;i++){
+        ans.push_back(i);
+    }
+    while (1){
+        int sum=0;
+        for (int i=0;i<ans.size();i++){
+            if (ans[i]<10&&ans[i]>=0){
+                sum++;
+            }
+        }
+        if (sum==ans.size()){
+            break;
+        }else{
+            for (int i=0;i<ans.size();i++){
+                int x=sq(ans[i]);
+                ans[i]=sumnum(x);
+            }
+        }
+    }
+    unordered_map<int,int> s;
+    set<int> keyy;
+    for (int i=0;i<ans.size();i++){
+        s[ans[i]]++;
+        keyy.insert(ans[i]);
+    }
+    vector<int> king;
+    int maxx=0;
+    for (auto it:keyy){
+        maxx=max(maxx,s[it]);
+    }
+    for (auto it:keyy){
+        if (s[it]==maxx){
+            king.push_back(it);
+        }
+    }
+    sort(king.begin(),king.end());
+    cout<<maxx<<endl;
+    for (int i=0;i<king.size();i++){
+        if (i==king.size()-1){
+            cout<<king[i];
+        }else{
+            cout<<king[i]<<" ";
+        }
+    }
+    
+    return 0;
+}
+```
+
+## 1118
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+string s;
+int main(){
+    unordered_map<string,int> n;
+    n.emplace("yi",1),n.emplace("er",2),n.emplace("san",3),
+    n.emplace("si",4),n.emplace("wu",5),n.emplace("liu",6),
+    n.emplace("qi",7),n.emplace("ba",8),n.emplace("jiu",9),
+    n.emplace("ling",0);
+    vector<int> ans;
+    for (int i=1;i<=11;i++){
+        getline(cin,s);
+        if (s.size()==1&&isdigit(s[0])){
+            ans.push_back(stoi(s));
+        }else if (s.size()>=4&&isalpha(s[0])){
+            string t=s.substr(0,4);
+            if (t=="sqrt"){
+                int x=sqrt(stoi(s.substr(4)));
+                ans.push_back(x);
+            }else if(t=="ling"){
+                ans.push_back(n[s]);
+            }
+        }else if(s.size()==2&&isalpha(s[0])){
+            ans.push_back(n[s]);
+        }else if(s.size()==3&&isalpha(s[0])){
+            ans.push_back(n[s]);
+        }else if(isdigit(s[0])){
+            vector<int> nums;
+            string m;
+            string f;
+            for (int i=0;i<s.size();i++){
+                if (s[i]=='+'||s[i]=='-'||s[i]=='*'||s[i]=='/'||s[i]=='%'||s[i]=='^'){
+                    f=s[i];
+                    int y=stoi(m);
+                    nums.push_back(y);
+                    m.clear();
+                }else{
+                    m+=s[i];
+                }
+            }
+            if (!m.empty()){
+                int t=stoi(m);
+                nums.push_back(t);
+                m.clear();
+            }
+            if (f=="+"){
+                ans.push_back(nums[0]+nums[1]);
+            }
+            if (f=="-"){
+                ans.push_back(nums[0]-nums[1]);
+            }
+            if (f=="*"){
+                ans.push_back(nums[0]*nums[1]);
+            }
+            if (f=="/"){
+                ans.push_back(nums[0]/nums[1]);
+            }
+            if (f=="%"){
+                if (nums[1]==0) ans.push_back(0); 
+                else ans.push_back(nums[0] % nums[1]);
+            }
+            if (f=="^"){
+                ans.push_back(pow(nums[0],nums[1]));
+            }
+        }
+    }
+    for (int i=0;i<ans.size();i++){
+        cout<<ans[i];
+    }
+    return 0;
+}
+```
+
+## 1119
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    if (n == 0) {
+        cout << 0 << endl;
+        return 0;
+    }
+    
+    vector<int> weights(n);
+    for (int i = 0; i < n; i++) {
+        cin >> weights[i];
+    }
+    
+    // 分组：连续相同体重的胖达为一组
+    vector<pair<int, int>> groups;
+    int current_weight = weights[0];
+    int count = 1;
+    for (int i = 1; i < n; i++) {
+        if (weights[i] == current_weight) {
+            count++;
+        } else {
+            groups.push_back({current_weight, count});
+            current_weight = weights[i];
+            count = 1;
+        }
+    }
+    groups.push_back({current_weight, count});
+    
+    int num_groups = groups.size();
+    vector<int> milk(num_groups, 200); // 每组初始奶量200毫升
+    
+    // 从左到右扫描组
+    for (int i = 1; i < num_groups; i++) {
+        if (groups[i].first > groups[i-1].first) {
+            milk[i] = max(milk[i], milk[i-1] + 100);
+        }
+    }
+    
+    // 从右到左扫描组
+    for (int i = num_groups - 2; i >= 0; i--) {
+        if (groups[i].first > groups[i+1].first) {
+            milk[i] = max(milk[i], milk[i+1] + 100);
+        }
+    }
+    
+    // 计算总奶量
+    int total_milk = 0;
+    for (int i = 0; i < num_groups; i++) {
+        total_milk += milk[i] * groups[i].second;
+    }
+    
+    cout << total_milk << endl;
+    
+    return 0;
+}
+```
+
+我被一脚踹飞了，这其实是一题递推，有点动态规划的味道。
+
+> ## 代码说明
+>
+> 1. **输入处理**：使用 `cin`读取胖达数量 `n`和体重列表 `weights`。
+> 2. **分组处理**：将连续相同体重的胖达分组，每组记录体重和数量，存储在 `vector<pair<int, int>>`中。
+> 3. **初始化奶量**：使用 `vector<int> milk(num_groups, 200)`初始化每组的奶量为 200 毫升。
+> 4. **左右扫描调整奶量**：从左到右扫描：如果当前组体重比前一组重，调整当前组奶量为前一组奶量加 100 毫升从右到左扫描：如果当前组体重比后一组重，调整当前组奶量为后一组奶量加 100 毫升
+> 5. **计算总奶量**：根据每组的奶量和组内胖达数量，求和得到总奶量并输出。
+>
+> 这种方法确保了在满足所有公平性和感知条件的同时，最小化总奶量。C++ 实现使用了 STL 容器（vector 和 pair）来简化代码编写。
+
+## 1120
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;
+int main(){
+    cin>>n>>m;
+    vector<int> a(n+1);
+    for (int i=1;i<=n;i++){
+        cin>>a[i];
+    }
+    vector<int> sum(n+1);
+    sum[0]=0;
+    partial_sum(a.begin()+1,a.end(),sum.begin()+1);
+    int ans=0;
+    for (int i=0;i<=n;i++){
+        for (int j=i+1;j<=n;j++){
+            int x=sum[j]-sum[i];
+            if (x<=m){
+                ans++;
+            }
+        }
+    }
+    cout<<ans<<endl;
+    return 0;
+}
+```
+
+非常公式的前缀和模板题
+
+## 1121
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+bool can(string a){
+    int n=a.size();
+    for (int i=1;i<=a.size();i++){
+        string x=a.substr(0,i);
+        int y=stoi(x);
+        if (y%i!=0){
+            return false;
+        }
+    }
+    return true;
+}
+int k;
+int main(){
+    cin>>k;
+    vector<string> a(k);
+    for (int i=0;i<k;i++){
+        cin>>a[i];
+    }
+    for (int i=0;i<k;i++){
+        if (can(a[i])){
+            cout<<"Yes"<<endl;
+        }else{
+            cout<<"No"<<endl;
+        }
+    }
+    return 0;
+}
+```
+
+## 1122
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+int main(){
+    cin>>n;
+    vector<int> a(n);
+    for (int i=0;i<n;i++){
+        cin>>a[i];
+    }
+    unordered_map<int,int> hash1;
+    set<int> keyy;
+    for (int i=0;i<n;i++){
+        if (a[i]%2==1){
+            keyy.insert(a[i]);
+            hash1[a[i]]++;
+        }
+    }
+    int ans;
+    for (auto it:keyy){
+        if (hash1[it]%2==1){
+            ans=it;
+            break;
+        }
+    }
+    cout<<ans;
+    return 0;
+}
+```
+
+## 1123
+
+```cpp
+#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+// 处理进位：s为数字字符串（已去除负号），n为保留的最后一位下标，c为进位标志
+void processCarry(string &s, int n, bool needCarry) {
+    if (!needCarry) {
+        s = s.substr(0, n + 1);
+        return;
+    }
+    
+    int pos = n;
+    while (pos >= 0 && needCarry) {
+        if (s[pos] == '.') {
+            pos--;
+            continue;
+        }
+        
+        if (s[pos] == '9') {
+            s[pos] = '0';
+            needCarry = true;
+        } else {
+            s[pos]++;
+            needCarry = false;
+        }
+        pos--;
+    }
+    
+    if (needCarry) {
+        s = "1" + s;
+    }
+    
+    s = s.substr(0, n + 1);
+}
+
+// 判断是否为实际零值
+bool isActualZero(const string &s) {
+    for (char c : s) {
+        if (c != '.' && c != '0') {
+            return false;
+        }
+    }
+    return true;
+}
+
+int main() {
+    int N, D;
+    cin >> N >> D;
+    
+    for (int i = 0; i < N; i++) {
+        int command;
+        string numStr;
+        cin >> command >> numStr;
+        
+        // 处理负号
+        bool isNegative = (numStr[0] == '-');
+        if (isNegative) {
+            numStr = numStr.substr(1);
+        }
+        
+        // 查找小数点位置
+        size_t dotPos = numStr.find('.');
+        if (dotPos == string::npos) {
+            dotPos = numStr.length();
+            numStr += ".";
+        }
+        
+        // 确保有足够的小数位
+        int requiredLength = dotPos + D + 1;
+        if (numStr.length() < requiredLength) {
+            numStr.append(requiredLength - numStr.length(), '0');
+        }
+        
+        // 确定检查位置
+        int checkPos = dotPos + D + 1;
+        
+        // 根据指令处理
+        bool needCarry = false;
+        if (command == 1) {
+            // 四舍五入
+            needCarry = (numStr[checkPos] >= '5');
+        } else if (command == 2) {
+            // 截断
+            needCarry = false;
+        } else if (command == 3) {
+            // 四舍六入五成双
+            if (numStr[checkPos] > '5') {
+                needCarry = true;
+            } else if (numStr[checkPos] == '5') {
+                // 检查5后面是否有非零数字
+                bool hasNonZeroAfter = false;
+                for (int j = checkPos + 1; j < numStr.length(); j++) {
+                    if (numStr[j] != '0') {
+                        hasNonZeroAfter = true;
+                        break;
+                    }
+                }
+                
+                if (hasNonZeroAfter) {
+                    needCarry = true;
+                } else {
+                    // 5后全为0，根据保留位最后一位决定
+                    needCarry = ((numStr[dotPos + D] - '0') % 2 != 0);
+                }
+            }
+        }
+        
+        // 处理进位
+        processCarry(numStr, dotPos + D, needCarry);
+        
+        // 处理输出
+        if (isNegative && !isActualZero(numStr)) {
+            cout << "-";
+        }
+        
+        // 确保输出D位小数
+        size_t currentDotPos = numStr.find('.');
+        if (currentDotPos == string::npos) {
+            cout << numStr;
+            if (D > 0) {
+                cout << ".";
+                cout << string(D, '0');
+            }
+        } else {
+            string integerPart = numStr.substr(0, currentDotPos);
+            string decimalPart = numStr.substr(currentDotPos + 1);
+            
+            if (decimalPart.length() < D) {
+                decimalPart.append(D - decimalPart.length(), '0');
+            } else if (decimalPart.length() > D) {
+                decimalPart = decimalPart.substr(0, D);
+            }
+            
+            cout << integerPart << "." << decimalPart;
+        }
+        cout << endl;
+    }
+    
+    return 0;
+}//这样的题目是毫无意义的，已经脱离了算法竞赛想要考察的初衷
+```
+
+看我最后一行吧，我感觉这种题可以跳了。
+
+## 1124
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+int n;
+int main(){
+    cin>>n;
+    vector<int> a;
+    a.push_back(0);
+    a.push_back(1);
+    int x;
+    int pos=0;
+    while (x<=1e8){
+        x=a[pos]+a[pos+1];
+        a.push_back(x);
+        pos++;
+    }
+    if (n<=0) cout<<0;
+    else if(n==1) cout<<1;
+    else{
+        for (int i=0;i<a.size();i++){
+            if (n==a[i]){
+                cout<<a[i]<<endl;
+            }else if(n>a[i-1]&&n<a[i]){
+                if (abs(n-a[i-1])>abs(n-a[i])) cout<<a[i];
+                else if(abs(n-a[i-1])<abs(n-a[i])) cout<<a[i-1];
+                else if(abs(n-a[i-1])==abs(n-a[i])) cout<<a[i-1];
+            }
+        }
+    }
+    return 0;
+}
+```
+
+## 1125
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+string a,b;
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    if(!(cin>>a)) return 0;
+    cin>>b;
+
+    int n = (int)a.size();
+    int m = (int)b.size();
+    int bestLen = INT_MAX;
+    int bestL = -1;
+
+    // 遍历 S 中每个可能作为 P 第一个字符匹配起点的位置
+    for (int i = 0; i < n; ++i){
+        if (a[i] != b[0]) continue;
+        int p = i;
+        int k = 0;
+        // 向右扫描，找到一个可以匹配完整 P 的结束位置
+        while (p < n && k < m){
+            if (a[p] == b[k]) ++k;
+            ++p;
+        }
+        if (k < m) break; // 从此 i 开始向右都找不到完整的 P，后续 i 更大也不可能（可选的微优化）
+
+        int end = p - 1;       // 最后匹配到的字符索引
+        int q = end;
+        int t = m - 1;
+        // 从 end 向左收缩，找到包含 P 的最短起点
+        while (q >= i){
+            if (a[q] == b[t]) --t;
+            if (t < 0) break;
+            --q;
+        }
+        int start = q; // q 指向匹配到 b[0] 的位置
+        int len = end - start + 1;
+        if (len < bestLen || (len == bestLen && start < bestL)){
+            bestLen = len;
+            bestL = start;
+        }
+    }
+
+    // 按题意 P 保证是 S 的一个非空子列，所以必有解
+    if (bestL != -1) cout << a.substr(bestL, bestLen) << '\n';
+    else cout << "\n";
+
+    return 0;
+}
+```
+
+125题里最难的那一题，这一题的难度目测在洛谷可以标到绿，也就是这可能是转专业考试最难的那一题了，这也不是一般的双指针，我直接坠机于此。
+
+> 好的，我帮你整理一份完整的题解思路，按照洛谷/题解的风格写，便于直接放到题解区使用：
+>
+> ------
+>
+> ## 题意理解
+>
+> 给定字符串 **S** 和字符串 **P**，保证 **P** 是 **S** 的一个**子列**（即可以通过删除 S 中某些字符得到 P）。
+>  要求在 S 中找出 **最短的子串**，使得该子串包含 P 作为子列；若有多个最短子串，输出起始位置最靠左的那个。
+>
+> ------
+>
+> ## 思路分析
+>
+> 这道题和常见的“最小覆盖子串”不同，**要求的是子列而不是字符频次**。
+>  直观做法是：
+>
+> 1. **枚举子串起点**，然后向右找到第一个能完整匹配 P 的子串末尾。
+> 2. **从右端回溯收缩左端**，使子串长度尽量短。
+> 3. 记录最短的答案，最后输出。
+>
+> 这样可以保证我们得到的子串长度最短，且如果有多个最短子串，取起点最小的。
+>
+> ------
+>
+> ## 算法步骤
+>
+> 假设字符串 `S` 长度为 `n`，字符串 `P` 长度为 `m`：
+>
+> ### Step 1: 遍历可能的起点
+>
+> 从 `S` 的每个下标 `i` 开始，只有当 `S[i] == P[0]` 时才有可能成为起点，继续执行后续步骤。
+>
+> ### Step 2: 正向匹配找到右端
+>
+> 从 `i` 向右扫，依次匹配 `P` 的字符，当全部匹配完成时记录此时的下标 `end`，此时 `S[i..end]` 是一个**包含 P 的子串**。
+>
+> > 如果扫到结尾都没能匹配完整 P，说明以 `i` 开始无解，可以结束循环（后面的起点更靠右，也不可能匹配到更短的子串）。
+>
+> ### Step 3: 逆向收缩左端
+>
+> 从 `end` 开始，向左扫并倒序匹配 P 的字符，直到匹配到 `P[0]`，此时的下标 `start` 即是这个右端对应的**最优左端**。
+>  这样得到的 `S[start..end]` 就是以该右端为终点的最短子串。
+>
+> ### Step 4: 更新答案
+>
+> 比较当前子串长度是否比之前更短，如果更短，或者长度相同但起点更靠左，就更新答案。
+>
+> ------
+>
+> ## 复杂度分析
+>
+> - 每次外层循环正向匹配 O(n)，逆向收缩 O(n)，最坏情况是 O(n*m)。
+> - 对于本题数据规模（一般 n, m ≤ 10^4），完全可以接受。
+>
+> ------
+>
+> ## 示例推演
+>
+> 以 `S = "abcdebdde", P = "bde"` 为例：
+>
+> | 起点 i         | 正向匹配得到 end | 匹配到的子串 | 逆向收缩后 start | 最短子串 |
+> | -------------- | ---------------- | ------------ | ---------------- | -------- |
+> | i=1 (S[1]='b') | end=8            | `bcdebdde`   | start=4          | `bdde`   |
+> | i=4 (S[4]='b') | end=8            | `bdde`       | start=4          | `bdde`   |
+>
+> 最终答案为 **"bdde"**，长度最短且起点最左。
+>
+> ------
+>
+> ## 代码实现
+>
+> ```cpp
+> #include <bits/stdc++.h>
+> using namespace std;
+> string a,b;
+> int main(){
+>     ios::sync_with_stdio(false);
+>     cin.tie(nullptr);
+> 
+>     cin>>a>>b;
+>     int n = a.size(), m = b.size();
+>     int bestLen = INT_MAX, bestL = -1;
+> 
+>     for (int i=0;i<n;i++){
+>         if (a[i] != b[0]) continue;
+>         int p = i, k = 0;
+>         while (p<n && k<m){
+>             if (a[p] == b[k]) k++;
+>             p++;
+>         }
+>         if (k < m) break; // 从此 i 往后也匹配不到完整 P 了
+>         int end = p-1;
+>         int q = end, t = m-1;
+>         while (q>=i){
+>             if (a[q] == b[t]) t--;
+>             if (t<0) break;
+>             q--;
+>         }
+>         int start = q;
+>         int len = end - start + 1;
+>         if (len < bestLen || (len==bestLen && start<bestL)){
+>             bestLen = len;
+>             bestL = start;
+>         }
+>     }
+>     cout << a.substr(bestL, bestLen) << "\n";
+>     return 0;
+> }
+> ```
+>
+> ------
+>
+> ## 总结
+>
+> - **核心思路：** 正向扩展保证包含 P，逆向收缩保证最短。
+> - **关键细节：**
+>   1. 每次只枚举可能的起点（匹配 `P[0]`）。
+>   2. 找到一个满足条件的右端后，要逆向收缩得到最短子串。
+>   3. 保留最短且起点最小的答案。
+>
+> 这种做法简单易写，不需要复杂的数据结构，也能轻松通过测试。
+>
+> ------
+>
+> 要不要我帮你画一张**双指针正反扫描的图解**（标出 i, p, q, start, end 的移动过程）？这样题解会更直观，很多人看一眼就懂。
+
+## 赛后总结：
+
+到此为止，PAT 乙级就正式结束，这一套题目我写了三周，在2025.9.30日正式完结。
+
+你会发现，里面很多题目我使用了AI写的代码，有些时候是我写不出来求助AI了，有些时候是我写的代码实在太过丑陋，没法见人，就让AI改了改
+
+这套题目并没有往届学长学姐说的那么神乎其神，相反，这套题目的无效题非常多，例如那种百行大模拟，我这里要点名批评B1123，简直是有点毛病。
+
+缺点说完了，现在来说说优点，首先这一套题目属于是那种模拟大集训，只有少部分算法，而模拟依旧在考试中占大头（24年机考达到了5/10的比例，23年5/8……）这套题如果真的花时间去写了，并且一题一题订正到AC是可以很好的锻炼代码能力的，并且里面有很多坑可以踩（但是不是所有坑都是好坑，有些坑有点不明所以），很多模板可以训练，写完是绝对赚到的，当然前提是你一题一题订正了。
+
+当然，如果你要求稳，只刷这个是肯定不够的，24年开始，算法的比例在上升了。
+
+对于我个人而言，我在暑假看完了深入浅出，并且写了里面的练习题，但暑假的最后我开摆了两个礼拜，导致有点手生，这一套就帮我找回手感了，接下来肯定就是进行算法冲刺了。
+
+​                                                                                                                                                                                                     ——by Schariac125
+
+​                                                                                                                                   2025年9月30日写于福州大学旗山校区
